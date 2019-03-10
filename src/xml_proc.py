@@ -28,7 +28,7 @@ LABELS = "labels"
 URL = "url"
 
 def parse_file(file_path, mongo_collection=None):
-    logging.info(f"Parsing file {file_path}")
+    logging.info(f"Parsing {file_path} and storing entries in the database")
     context = etree.iterparse(file_path, events=("start", "end"))
     for event, element in context:
         if event == 'start' and element.tag == PHOTO:
@@ -40,14 +40,15 @@ def parse_file(file_path, mongo_collection=None):
                 url = URL_TEMPLATE
 
                 for attrib in ATTRIBUTES:
+                    value = element.attrib[attrib]
                     if attrib == DATEUPLOADED:
-                        photo[DATE_MAP] = datetime.fromtimestamp(int(element.attrib[attrib])).isoformat()
+                        photo[DATE_MAP] = datetime.fromtimestamp(int(value)).isoformat()
                     elif attrib == ID:
-                        photo[ID_MAP] = int(element.attrib[attrib])
-                    elif attrib.isdigit():
-                        photo[attrib] = int(element.attrib[attrib])
+                        photo[ID_MAP] = int(value)
+                    elif value.isdigit():
+                        photo[attrib] = int(value)
                     else:    
-                        photo[attrib] = element.attrib[attrib]
+                        photo[attrib] = value
 
                 for attrib in URL_ATTRIBUTES:
                     url = url.replace(f"{{{attrib}}}", element.attrib[attrib])
@@ -61,7 +62,7 @@ def parse_file(file_path, mongo_collection=None):
                 photo[LABELS] = labels
 
                 if mongo_collection != None:
-                    mongo_collection.replace_one({"_id": photo[ID_MAP]}, photo, upsert=True)
+                    mongo_collection.replace_one({ID_MAP: photo[ID_MAP]}, photo, upsert=True)
                     
                 else:
                     logging.info(photo)

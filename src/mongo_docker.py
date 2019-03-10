@@ -14,11 +14,11 @@ client = docker.from_env()
 logging.basicConfig(format=commons_config["DEFAULT"]["LOGGER_FORMAT"], level=logging.INFO)
 
 def init():
-    logging.info("Initializing docker container")
-    logging.info("Pulling the mongodb image")
+    logging.info("Initializing a docker container")
+    logging.info("Pulling a mongodb image")
     image = client.images.pull(IMG_NAME, TAG)
     logging.info("The image pulled")
-    logging.info("Running a container")
+    logging.info("Running the container")
     client.volumes.create(DOCKER_VOLUME)
     client.containers.run(IMG_NAME,
                 detach=True,
@@ -27,12 +27,12 @@ def init():
                 volumes=VOLUMES)
 
 def run_container(name):
-    logging.info(f"Runing the container: {name}")
+    logging.info(f"Running the container: {name}")
     container = client.containers.get(name)
     container.start()
 
 def stop_container(name):
-    logging.info(f"Stoping the container: {name}")
+    logging.info(f"Stopping the container: {name}")
     container = client.containers.get(name)
     container.stop()
     logging.info(f"Container stopped")

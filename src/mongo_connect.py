@@ -8,7 +8,7 @@ PHOTOS_COLLECTION = commons_config['DEFAULT']['PHOTOS_COLLECTION']
 logging.basicConfig(format=commons_config["DEFAULT"]["LOGGER_FORMAT"], level=logging.INFO)
 
 def manage_mongo():
-    logging.info(f"Connecting to mongodb under: {MONGO_URL}, database: {DB_NAME}, collection: {PHOTOS_COLLECTION}")
+    logging.info(f"Connecting to the mongodb under: {MONGO_URL}, database: {DB_NAME}, collection: {PHOTOS_COLLECTION}")
     mongo_client = pymongo.MongoClient(MONGO_URL)
     db = mongo_client[DB_NAME]
     mongo_photos = db[PHOTOS_COLLECTION]
