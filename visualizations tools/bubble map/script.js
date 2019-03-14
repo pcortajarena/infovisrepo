@@ -3,6 +3,7 @@
 //var height = 500;
 var width = 1440,
     height = 750,
+    active = d3.select(null),
     centered;
 
 
@@ -19,13 +20,21 @@ var path = d3.geo.path()               // path generator that will convert GeoJS
 var color = d3.scale.linear()
 			  .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","#FF7057"]);
 
-var legendText = ["Cities Lived", "States Lived", "States Visited", "Nada"];
+// var legendText = ["Cities Lived", "States Lived", "States Visited", "Nada"];
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
 			.append("svg")
 			.attr("width", width)
 			.attr("height", height);
+
+      svg.append("rect")
+      .attr("class", "background")
+      .attr("width", width)
+      .attr("height", height);
+
+      var g = svg.append("g")
+      .style("stroke-width", "1.5px");
 
 // Append Div for tooltip to SVG
 var div = d3.select("body")
@@ -65,13 +74,13 @@ d3.json("us-states.json", function(json) {
     }
 
     // Bind the data to the SVG and create one path per GeoJSON feature
-    svg.selectAll("path")
+    g.selectAll("path")
         .data(json.features)
         .enter()
         .append("path")
         .attr("d", path)
         .attr("class", "states")
-        /*.on("click", clicked)*/
+        .on("click", clicked)
         .style("fill", function(d) {
 
 
@@ -79,13 +88,48 @@ d3.json("us-states.json", function(json) {
 
     });
 
+    function reset(){
+      active.classed("active", false);
+      active = d3.select(null);
+
+      g.transition()
+          .duration(750)
+          .style("stroke-width", "1.5px")
+          .attr("transform", "");
+    }
+
+    function clicked(d) {
+
+    	if (active.node() === this) return reset();
+      active.classed("active", false);
+      active = d3.select(this).classed("active", true);
+
+    	var bounds = path.bounds(d)
+    		//       x-max          x-min
+    		dx = bounds[1][0] - bounds[0][0],
+    		//       y-max          y-min
+    		dy = bounds[1][1] - bounds[0][1],
+
+    		// Center x and center y
+    		x = (bounds[0][0] + bounds[1][0]) / 2,
+    		y = (bounds[0][1] + bounds[1][1]) / 2,
+
+    		scale = .9 / Math.max(dx / width, dy / height),
+    		translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+       g.transition()
+           .duration(750)
+           .style("stroke-width", 1.5 / scale + "px")
+    			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+    }
+
     d3.json("api_call.json", function(data){
 
         // only get the list of photo objects
         data = data["results"]
         console.log("JSON ::::::",data);
 
-        svg.selectAll("circle")
+        g.selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
@@ -106,7 +150,24 @@ d3.json("us-states.json", function(json) {
                 return 3;
             })
     });
- 
+    
+    var select = d3.select('body')
+      .append('select')
+      	.attr('class','dropdown')
+        .on('change', onchange)
+
+    var options = select
+      .selectAll('option')
+    	.data(data).enter()
+    	.append('option')
+    		.text(function (d) { return d; });
+    //
+    // function onchange() {
+    // 	selectValue = d3.select('select').property('value')
+    // 	d3.select('body')
+    // 		.append('p')
+    // 	console.log(selectValue)
+
 });
 
 
