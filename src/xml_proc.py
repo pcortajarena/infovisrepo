@@ -30,7 +30,7 @@ LOCATION = "location"
 PHOTO = "photo"
 LABELS = "labels"
 URL = "url"
-
+LABELS_OUT = commons_config["XML_PROC"]["LABELS_OUT"]
 
 def parse_element(element):
     location_element = element.find(LOCATION)
@@ -84,17 +84,36 @@ async def async_send(request):
     logging.info(f"JSON body: {json_body}")
 
 
-def parse_file(file_path):
-    logging.info(f"Parsing {file_path} and storing entries in the database")
-    context = etree.iterparse(file_path, events=("start", "end"))
+def update_labels(new_labels, labels_dict):
+    for label in new_labels:
+        if label != None:
+            labels_dict[label] = True
+
+    return labels_dict
+
+
+def write_labels(path, labels_dict):
+    labels = '\n'.join(labels_dict.keys())
+    logging.info(f"Writing labels into {path}")
+    
+    with open(path, 'a') as f:
+        f.write(labels)
+
+
+def parse_file(xml_path, labels_dict):
+    logging.info(f"Parsing {xml_path} and storing entries in the database")
+    context = etree.iterparse(xml_path, events=("start", "end"))
 
     bulk = []
+    
     for event, element in context:
         if event == 'start' and element.tag == PHOTO:
             photo = parse_element(element)
 
             if photo != None:
                 bulk.append(photo)
+                labels_dict = update_labels(photo[LABELS], labels_dict)
+                # print(labels_dict)
 
             if len(bulk) >= BULK_SIZE:
                 send(bulk)
@@ -102,9 +121,13 @@ def parse_file(file_path):
 
         element.clear()
 
-    send(bulk)
+    #send(bulk)
     logging.info(f"Finished parsing the data")
 
 
+labels_dict = {}
 for path in PATHS:
-    parse_file(path)
+    parse_file(path, labels_dict)
+
+print(labels_dict)
+write_labels(LABELS_OUT, labels_dict)
