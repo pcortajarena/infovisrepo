@@ -104,15 +104,11 @@ d3.json("us-states.json", function(json) {
       active.classed("active", false);
       active = d3.select(this).classed("active", true);
 
-    	console.log("Test Click", d.properties.name)
     	var bounds = path.bounds(d)
-    		console.log(bounds)
     		//       x-max          x-min
     		dx = bounds[1][0] - bounds[0][0],
-    		console.log(dx)
     		//       y-max          y-min
     		dy = bounds[1][1] - bounds[0][1],
-    		console.log(dy)
 
     		// Center x and center y
     		x = (bounds[0][0] + bounds[1][0]) / 2,
@@ -133,7 +129,7 @@ d3.json("us-states.json", function(json) {
         data = data["results"]
         console.log("JSON ::::::",data);
 
-        svg.selectAll("circle")
+        g.selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
@@ -154,10 +150,11 @@ d3.json("us-states.json", function(json) {
                 return 3;
             })
     });
+    
     var select = d3.select('body')
       .append('select')
       	.attr('class','dropdown')
-        .on('change',onchange)
+        .on('change', onchange)
 
     var options = select
       .selectAll('option')
