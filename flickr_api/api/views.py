@@ -23,7 +23,7 @@ class PhotoViewSet(BulkModelViewSet):
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, ]
-    filter_fields = ('id', 'date', 'longitude', 'latitude')
+    filter_fields = ('id', 'date', 'longitude', 'latitude', "labels")
     ordering_fields = ('date', 'views')
     http_method_names = ['get', 'post']
     pagination_class = PageNumberSetPagination

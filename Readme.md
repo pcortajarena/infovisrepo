@@ -13,3 +13,4 @@
   - Filter by longitude: *localhost:8000/photos?longitude__range=4.80,5.00*
   - Order by views: *localhost:8000/photos?ordering=-views*
   - Change page: *localhost:8000/photos/?page=2*
+  - Filter by labels: *localhost:8000/photos?labels=person*
