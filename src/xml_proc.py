@@ -1,24 +1,28 @@
 from datetime import datetime
 import xml.etree.ElementTree as etree
-from xml.etree.ElementTree import Element   
+from xml.etree.ElementTree import Element
 import lxml.etree as letree
 import json
-import pymongo 
 import logging
-from mongo_connect import manage_mongo
+import aiohttp
 from configs import *
+from aiohttp import ClientSession
+import asyncio
 
 logging.basicConfig(format=commons_config["DEFAULT"]["LOGGER_FORMAT"], level=logging.INFO)
 
-PATHS = [x.strip() for x in  xml_config["DEFAULT"]["INPUT_FILES"].split(',')]
-URL_TEMPLATE = xml_config["DEFAULT"]["URL_TEMPLATE"]
+PATHS = [x.strip() for x in commons_config["XML_PROC"]["INPUT_FILES"].split(',')]
 
+BULK_SIZE = int(commons_config['API']['BULK_SIZE'])
+API_ENDPOINT = commons_config['API']['API_ENDPOINT']
+
+URL_TEMPLATE = commons_config["XML_PROC"]["URL_TEMPLATE"]
 DATEUPLOADED = 'dateuploaded'
 DATE_MAP = commons_config['JSON_FORMAT']['DATE']
 ID = "id"
 ID_MAP = commons_config['JSON_FORMAT']['ID']
 
-ATTRIBUTES = [ID, DATEUPLOADED , "views"]
+ATTRIBUTES = [ID, DATEUPLOADED, "views"]
 URL_ATTRIBUTES = ['farm', ID, 'secret', 'server']
 LATITUDE = "latitude"
 LONGITUDE = "longitude"
@@ -27,49 +31,80 @@ PHOTO = "photo"
 LABELS = "labels"
 URL = "url"
 
-def parse_file(file_path, mongo_collection=None):
+
+def parse_element(element):
+    location_element = element.find(LOCATION)
+    labels_element = element.find(LABELS)
+    if location_element != None and labels_element != None:
+        photo = {}
+        labels = []
+        url = URL_TEMPLATE
+
+        for attrib in ATTRIBUTES:
+            value = element.attrib[attrib]
+            if attrib == DATEUPLOADED:
+                photo[DATE_MAP] = datetime.fromtimestamp(
+                    int(value)).isoformat()
+            elif attrib == ID:
+                photo[ID_MAP] = int(value)
+            elif value.isdigit():
+                photo[attrib] = int(value)
+            else:
+                photo[attrib] = value
+
+        for attrib in URL_ATTRIBUTES:
+            url = url.replace(f"{{{attrib}}}", element.attrib[attrib])
+
+        for label in labels_element:
+            labels.append(label.text)
+
+        photo[URL] = url
+        photo[LATITUDE] = float(location_element.attrib[LATITUDE])
+        photo[LONGITUDE] = float(location_element.attrib[LONGITUDE])
+        photo[LABELS] = labels
+
+        return photo
+
+    else:
+        return None
+
+
+def send(bulk):
+    logging.info("Sending the data")
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(async_send(bulk))
+    logging.info("The bulk sent")
+
+
+async def async_send(request):
+    async with ClientSession() as session:
+        async with session.post(API_ENDPOINT, json=request) as r:
+            json_body = await r.json()
+    logging.info(f"Response status: {r.status}")
+    logging.info(f"JSON body: {json_body}")
+
+
+def parse_file(file_path):
     logging.info(f"Parsing {file_path} and storing entries in the database")
     context = etree.iterparse(file_path, events=("start", "end"))
+
+    bulk = []
     for event, element in context:
         if event == 'start' and element.tag == PHOTO:
-            location_element = element.find(LOCATION)
-            labels_element = element.find(LABELS)
-            if location_element != None and labels_element != None:
-                photo = {}
-                labels = []
-                url = URL_TEMPLATE
+            photo = parse_element(element)
 
-                for attrib in ATTRIBUTES:
-                    value = element.attrib[attrib]
-                    if attrib == DATEUPLOADED:
-                        photo[DATE_MAP] = datetime.fromtimestamp(int(value)).isoformat()
-                    elif attrib == ID:
-                        photo[ID_MAP] = int(value)
-                    elif value.isdigit():
-                        photo[attrib] = int(value)
-                    else:    
-                        photo[attrib] = value
+            if photo != None:
+                bulk.append(photo)
 
-                for attrib in URL_ATTRIBUTES:
-                    url = url.replace(f"{{{attrib}}}", element.attrib[attrib])
+            if len(bulk) >= BULK_SIZE:
+                send(bulk)
+                bulk = []
 
-                for label in labels_element:
-                    labels.append(label.text)
-
-                photo[URL] = url
-                photo[LATITUDE] = float(location_element.attrib[LATITUDE])
-                photo[LONGITUDE] = float(location_element.attrib[LONGITUDE])
-                photo[LABELS] = labels
-
-                if mongo_collection != None:
-                    mongo_collection.replace_one({ID_MAP: photo[ID_MAP]}, photo, upsert=True)
-                    
-                else:
-                    logging.info(photo)
         element.clear()
-    
+
+    send(bulk)
     logging.info(f"Finished parsing the data")
 
-mongo_photos = manage_mongo()
+
 for path in PATHS:
-    parse_file(path, mongo_photos)
+    parse_file(path)

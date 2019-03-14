@@ -77,10 +77,12 @@ WSGI_APPLICATION = 'flickr_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'flickr_db',
-        'HOST': 'localhost',
-        'PORT': 27017
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'infovis',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 
