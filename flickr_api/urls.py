@@ -18,6 +18,7 @@ from django.urls import path, include
 
 from rest_framework_bulk.routes import BulkRouter
 from flickr_api.api import views
+from flickr_api.api.views import *
 
 router = BulkRouter()
 router.register(r'photos', views.PhotoViewSet)
@@ -25,5 +26,6 @@ router.register(r'photos', views.PhotoViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('main/', MainView.as_view(), name='my-view')
 ]
