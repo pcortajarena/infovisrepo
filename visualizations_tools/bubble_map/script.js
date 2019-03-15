@@ -8,9 +8,9 @@ var width = 1440,
 
 
 // D3 Projection
-var projection = d3.geo.albersUsa()
-				   .translate([width/2, height/2])    // translate to center of screen
-				   .scale([1400]);          // scale things down so see entire US
+var projection = d3.geo.mercator()
+				   .translate([width/2, height/2 + 100])    // translate to center of screen
+				   .scale([200]);          // scale things down so see entire US
 
 // Define path generator
 var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
@@ -47,7 +47,7 @@ d3.csv("stateslived.csv", function(data) {
 color.domain([0,1,2,3]); // setting the range of the input data
 
 // Load GeoJSON data and merge with states data
-d3.json("us-states.json", function(json) {
+d3.json("world.json", function(json) {
 
     // Loop through each state data value in the .csv file
     for (var i = 0; i < data.length; i++) {
