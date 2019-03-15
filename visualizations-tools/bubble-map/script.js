@@ -123,10 +123,10 @@ d3.json("us-states.json", function(json) {
     			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
     }
 
-    d3.json("api_call.json", function(data){
+    d3.json("us-photos-total.json", function(data){
 
         // only get the list of photo objects
-        data = data["results"]
+        data = data["results"];
         console.log("JSON ::::::",data);
 
         g.selectAll("circle")
