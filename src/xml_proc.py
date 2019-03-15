@@ -87,16 +87,19 @@ async def async_send(request):
 def update_labels(new_labels, labels_dict):
     for label in new_labels:
         if label != None:
-            labels_dict[label] = True
+            labels_dict[label] = labels_dict[label] + 1 if label in labels_dict else 1
 
     return labels_dict
 
 
 def write_labels(path, labels_dict):
-    labels = '\n'.join(labels_dict.keys())
+    labels_dict = list(labels_dict.items())
+    labels_dict.sort(key=lambda tup: tup[1], reverse=True)
+    labels = [f"{x[0]}, {x[1]}" for x in labels_dict] 
+    labels = '\n'.join(labels)
     logging.info(f"Writing labels into {path}")
     
-    with open(path, 'a') as f:
+    with open(path, 'w+') as f:
         f.write(labels)
 
 
@@ -113,7 +116,6 @@ def parse_file(xml_path, labels_dict):
             if photo != None:
                 bulk.append(photo)
                 labels_dict = update_labels(photo[LABELS], labels_dict)
-                # print(labels_dict)
 
             if len(bulk) >= BULK_SIZE:
                 send(bulk)
@@ -121,7 +123,7 @@ def parse_file(xml_path, labels_dict):
 
         element.clear()
 
-    #send(bulk)
+    send(bulk)
     logging.info(f"Finished parsing the data")
 
 
