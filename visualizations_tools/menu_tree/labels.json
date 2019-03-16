@@ -1,0 +1,231 @@
+{
+  "name": "All data",
+  "children": [{
+      "name": "Nature",
+      "children": [{
+          "name": "sky"
+        },
+        {
+          "name": "clouds"
+        },
+        {
+          "name": "water"
+        },
+        {
+          "name": "grass"
+        },
+        {
+          "name": "lake"
+        },
+        {
+          "name": "ocean"
+        },
+        {
+          "name": "plants"
+        },
+        {
+          "name": "sunset"
+        },
+        {
+          "name": "rocks"
+        },
+        {
+          "name": "mountain"
+        },
+        {
+          "name": "beach"
+        },
+        {
+          "name": "snow"
+        },
+        {
+          "name": "tree"
+        },
+        {
+          "name": "valley"
+        },
+        {
+          "name": "flowers"
+        },
+        {
+          "name": "nighttime"
+        },
+        {
+          "name": "sun"
+        },
+        {
+          "name": "garden"
+        },
+        {
+          "name": "birds"
+        },
+        {
+          "name": "sand"
+        },
+        {
+          "name": "coral"
+        },
+        {
+          "name": "fire"
+        },
+        {
+          "name": "frost"
+        },
+        {
+          "name": "leaf"
+        },
+        {
+          "name": "moon"
+        },
+        {
+          "name": "waterfall"
+        },
+        {
+          "name": "glacier"
+        },
+        {
+          "name": "reflection"
+        }]
+    }, {
+      "name": "Animal",
+      "children": [{
+          "name": "animal"
+        },
+        {
+          "name": "fish"
+        },
+        {
+          "name": "horses"
+        },
+        {
+          "name": "bear"
+        },
+        {
+          "name": "dog"
+        },
+        {
+          "name": "cat"
+        },
+        {
+          "name": "cow"
+        },
+        {
+          "name": "elk"
+        },
+        {
+          "name": "fox"
+        },
+        {
+          "name": "whales"
+        },
+        {
+          "name": "tiger"
+        }]
+    }, {
+      "name": "People",
+      "children": [{
+          "name": "person"
+        },
+        {
+          "name": "wedding"
+        },
+        {
+          "name": "food"
+        },
+        {
+          "name": "toy"
+        },
+        {
+          "name": "protest"
+        },
+        {
+          "name": "police"
+        },
+        {
+          "name": "military"
+        }]
+    }, {
+      "name": "Architecture",
+      "children": [{
+          "name": "buildings"
+        },
+        {
+          "name": "window"
+        },
+        {
+          "name": "house"
+        },
+        {
+          "name": "tower"
+        },
+        {
+          "name": "bridge"
+        },
+        {
+          "name": "town"
+        },
+        {
+          "name": "street"
+        },
+        {
+          "name": "cityscape"
+        },
+        {
+          "name": "statue"
+        },
+        {
+          "name": "road"
+        },
+        {
+          "name": "temple"
+        },
+        {
+          "name": "railroad"
+        },
+        {
+          "name": "castle"
+        },
+        {
+          "name": "sign"
+        }]
+    }, {
+      "name": "Sports",
+      "children": [
+        {
+          "name": "sports"
+        },
+        {
+          "name": "dancing"
+        },
+        {
+          "name": "swimmers"
+        },
+        {
+          "name": "running"
+        }]
+    }, {
+      "name": "Vehicles",
+      "children": [
+        {
+          "name": "vehicle"
+        },
+        {
+          "name": "boats"
+        },
+        {
+          "name": "train"
+        },
+        {
+          "name": "cars"
+        },
+        {
+          "name": "plain"
+        },
+        {
+          "name": "airport"
+        },
+        {
+          "name": "harbor"
+        }]
+    }]
+  }
