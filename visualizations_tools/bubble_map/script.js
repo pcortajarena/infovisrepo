@@ -146,7 +146,7 @@ d3.json("world.json").then(function(json) {
                 return false;
             })
             .classed("circles-hidden", function(d) {
-                if((parseInt(d.date.substring(5,7))>=sliderRange.value()[0]) && (parseInt(d.date.substring(5,7))<=sliderRange.value()[1])){
+                if((parseInt(d.date.substring(5,7))>=Math.min(sliderRange.value()[0],sliderRange.value()[1])) && (parseInt(d.date.substring(5,7))<=Math.max(sliderRange.value()[0],sliderRange.value()[1]))){
                     return false;
                 }
 
