@@ -1,26 +1,15 @@
-//Width and height of map
-//var width = 960;
-//var height = 500;
 var width = 1440,
     height = 750,
-    active = d3.select(null),
-    centered;
+    active = d3.select(null);
 
+var circR = 3;
 
-// D3 Projection
-var projection = d3.geo.mercator()
+var projection = d3.geoMercator()
 				   .translate([width/2, height/2 + 100])    // translate to center of screen
-				   .scale([200]);          // scale things down so see entire US
+				   .scale(230);          // scale things down so see entire US
 
 // Define path generator
-var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
-		  	 .projection(projection);  // tell path generator to use albersUsa projection
-
-// Define linear scale for output
-var color = d3.scale.linear()
-			  .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","#FF7057"]);
-
-// var legendText = ["Cities Lived", "States Lived", "States Visited", "Nada"];
+var path = d3.geoPath(projection);  // tell path generator to use albersUsa projection
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -28,50 +17,22 @@ var svg = d3.select("body")
 			.attr("width", width)
 			.attr("height", height);
 
-      svg.append("rect")
-      .attr("class", "background")
-      .attr("width", width)
-      .attr("height", height);
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height);
 
-      var g = svg.append("g")
-      .style("stroke-width", "1.5px");
+var g = svg.append("g")
+    .style("stroke-width", "1.5px");
 
-// Append Div for tooltip to SVG
-var div = d3.select("body")
-		    .append("div")
-    		.attr("class", "tooltip")
-    		.style("opacity", 0);
 
-// Load in my states data!
-d3.csv("stateslived.csv", function(data) {
-color.domain([0,1,2,3]); // setting the range of the input data
+var tip = d3.select("body")
+    .append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
 
-// Load GeoJSON data and merge with states data
-d3.json("world.json", function(json) {
-
-    // Loop through each state data value in the .csv file
-    for (var i = 0; i < data.length; i++) {
-
-        // Grab State Name
-        var dataState = data[i].state;
-
-        // Grab data value
-        var dataValue = data[i].visited;
-
-        // Find the corresponding state inside the GeoJSON
-        for (var j = 0; j < json.features.length; j++)  {
-            var jsonState = json.features[j].properties.name;
-
-            if (dataState == jsonState) {
-
-            // Copy the data value into the JSON
-            json.features[j].properties.visited = dataValue;
-
-            // Stop looking through the JSON
-            break;
-            }
-        }
-    }
+// Load GeoJSON data 
+d3.json("world.json").then(function(json) {
 
     // Bind the data to the SVG and create one path per GeoJSON feature
     g.selectAll("path")
@@ -79,14 +40,11 @@ d3.json("world.json", function(json) {
         .enter()
         .append("path")
         .attr("d", path)
-        .attr("class", "states")
-        .on("click", clicked)
-        .style("fill", function(d) {
-
-
-        return "#eccc68";
-
-    });
+        .attr("class", "worldmap")
+        .on("click", areaClicked)
+        .on('mouseover', areaMouseover)
+        .on('mousemove', areaMousemove)
+        .on('mouseleave', areaMouseleave)
 
     function reset(){
       active.classed("active", false);
@@ -98,13 +56,31 @@ d3.json("world.json", function(json) {
           .attr("transform", "");
     }
 
-    function clicked(d) {
+    function areaMouseover(d) {
+        area = d3.select(this);
+        area.classed("worldmap-active", true); 
+    }
+
+    function areaMousemove(d) {
+        tip.html("<span><strong>Location:</strong></span> <span style='color:white'>" + d.properties.name + "</span>")
+        .style("opacity", 0.9)
+        .style("left", (d3.event.pageX + 50) + "px")   
+        .style("top", d3.event.pageY + "px"); 
+    }
+
+    function areaMouseleave(d) {
+        area = d3.select(this);
+        area.classed("worldmap-active", false);
+        tip.style("opacity", 0);
+    }
+
+    function areaClicked(d) {
 
     	if (active.node() === this) return reset();
       active.classed("active", false);
       active = d3.select(this).classed("active", true);
 
-    	var bounds = path.bounds(d)
+    	var bounds = path.bounds(d),
     		//       x-max          x-min
     		dx = bounds[1][0] - bounds[0][0],
     		//       y-max          y-min
@@ -114,20 +90,24 @@ d3.json("world.json", function(json) {
     		x = (bounds[0][0] + bounds[1][0]) / 2,
     		y = (bounds[0][1] + bounds[1][1]) / 2,
 
-    		scale = .9 / Math.max(dx / width, dy / height),
-    		translate = [width / 2 - scale * x, height / 2 - scale * y];
+    		scale = 0.5 / Math.max(dx / width, dy / height),
+            translate = [width / 2 - scale * x, height / 2 - scale * y];
 
        g.transition()
            .duration(750)
-           .style("stroke-width", 1.5 / scale + "px")
+           .style("stroke-width", 1.0 / scale + "px")
     			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
     }
 
-    d3.json("us-photos-total.json", function(data){
+    function circleClicked(d){
+        console.log(d)
+    }
+
+    d3.json("api_call.json").then(function(data){
 
         // only get the list of photo objects
-        data = data["results"];
-        console.log("JSON ::::::",data);
+        data = data["results"]
+        // console.log("JSON ::::::",data);
 
         g.selectAll("circle")
             .data(data)
@@ -146,29 +126,88 @@ d3.json("world.json", function(json) {
             }
             catch(error) {}
             })
-            .attr("r", function(d) {
-                return 3;
-            })
+            .attr("r", circR)
+            .on("click", circleClicked);
+
+            var label = "sky";
+
+        function filterCircles(label){
+            console.log("FilterCircles");
+            g.selectAll("circle")
+            .classed("circles-active", function(d) {
+                var sel = d3.select(this);
+                sel.each(pulseStop);
+            
+                if(d.labels.includes(label)){
+                    sel.raise().each(pulse);
+                    return true;
+                }
+                
+                return false;
+            });
+        }
+
+        
+        function pulse() {
+            var circle = d3.select(this);
+            r = circR;
+            stroke = 6;
+
+            circle
+            .attr('r', r) 
+            .attr("stroke-width", 0)
+            .attr("stroke-opacity", 0.5)
+            .transition()        
+            .ease(d3.easeSin)
+            .duration(450)   
+            .attr('r', 1.5 * r) 
+            
+            .transition()   
+            .ease(d3.easeLinear)
+            .duration(550) 
+            .attr('r', r)   
+            .attr("stroke-width", stroke)
+            .attr("stroke-opacity", 0.25)
+
+            .transition()
+            .duration(600) 
+            .attr("stroke-width", 2 * stroke)
+            .attr("stroke-opacity", 0.0)
+            .on("end", pulse);  
+        };
+
+        function pulseStop(){
+            var circle = d3.select(this);
+            circle.transition().duration(200)
+            .attr("r", circR)
+            .attr("stroke-width", 0)
+            .attr("stroke-opacity", 0);
+        }
+
+        var select = d3.csv("labels.csv").then(function(labels){
+
+            labels = labels.slice(0,20);
+
+            var select = d3.select('body')
+                .append('select')
+                .attr('class','dropdown')
+                .on('change', onchange);
+
+            var options = select
+                .selectAll('option')
+                .data(labels)
+                .enter()
+                .append('option')
+                .attr("value", function (d) {return d.label;})
+                .text(function (d) {return d.label; });
+                        
+            function onchange() {
+                console.log("onchange");
+                label = d3.select('select').property('value');
+                filterCircles(label);
+            }
+
+            onchange();
+        });      
     });
-    
-    var select = d3.select('body')
-      .append('select')
-      	.attr('class','dropdown')
-        .on('change', onchange)
-
-    var options = select
-      .selectAll('option')
-    	.data(data).enter()
-    	.append('option')
-    		.text(function (d) { return d; });
-    //
-    // function onchange() {
-    // 	selectValue = d3.select('select').property('value')
-    // 	d3.select('body')
-    // 		.append('p')
-    // 	console.log(selectValue)
-
-});
-
-
 });
