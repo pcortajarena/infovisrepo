@@ -138,7 +138,7 @@ d3.json("world.json").then(function(json) {
                 var sel = d3.select(this);
                 sel.each(pulseStop);
             
-                if(d.labels.includes(label)){
+                if((d.labels.includes(label)) && (parseInt(d.date.substring(5,7))>=sliderRange.value()[0]) && (parseInt(d.date.substring(5,7))<=sliderRange.value()[1])){
                     sel.raise().each(pulse);
                     return true;
                 }
@@ -208,6 +208,37 @@ d3.json("world.json").then(function(json) {
             }
 
             onchange();
-        });      
+        });   
+		
+		// Slider
+		var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
+		var tickLabels = ['jan','feb','mar','apr','may','jun','jul','aug','sept','oct','nov','dec']
+		
+		// Range
+		var sliderRange = d3
+			.sliderBottom()
+			.width(400)
+			.min(d3.min(slider_data))
+			.max(d3.max(slider_data))
+			.tickFormat(function(d,i){ return tickLabels[i] })
+			.step(1)
+			.default([1,12])
+			.fill('#2196f3') 
+			.on('onchange', val => {
+			filterCircles(label);
+			});
+		
+
+		var gRange = d3
+			.select('body')
+			.append('svg')
+			.attr('width', 1500)
+			.attr('height', 400)
+			.append('g')
+			.attr('transform', 'translate(500,30)');
+			
+
+		 gRange.call(sliderRange);
     });
 });
+
