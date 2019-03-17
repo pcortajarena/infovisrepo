@@ -63,7 +63,13 @@ body {
 .circles-active {
 	fill: #4411ff;
 	stroke: #4411ff;
+	opacity: 0.85;
 }
+
+.circles-hidden {
+	opacity: 0.0;
+}
+
 
 .circles:hover{
 	fill: #800000;

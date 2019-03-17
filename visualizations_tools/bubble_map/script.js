@@ -138,12 +138,19 @@ d3.json("world.json").then(function(json) {
                 var sel = d3.select(this);
                 sel.each(pulseStop);
             
-                if((d.labels.includes(label)) && (parseInt(d.date.substring(5,7))>=sliderRange.value()[0]) && (parseInt(d.date.substring(5,7))<=sliderRange.value()[1])){
+                if((d.labels.includes(label))){
                     sel.raise().each(pulse);
                     return true;
                 }
                 
                 return false;
+            })
+            .classed("circles-hidden", function(d) {
+                if((parseInt(d.date.substring(5,7))>=sliderRange.value()[0]) && (parseInt(d.date.substring(5,7))<=sliderRange.value()[1])){
+                    return false;
+                }
+
+                return true;
             });
         }
 
