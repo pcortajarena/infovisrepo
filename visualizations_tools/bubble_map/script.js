@@ -80,6 +80,20 @@ d3.json("world.json").then(function(json) {
       active.classed("active", false);
       active = d3.select(this).classed("active", true);
 
+    	var x_translation = 0
+	  var scale_translation = 0.5
+	  
+	  if (d.properties.name == 'Canada'){ 
+		x_translation = 150
+		scale_translation = 1.0
+	  } else if (d.properties.name == 'Russia'){
+		x_translation = 300
+		scale_translation = 1.8
+	  } else if (d.properties.name == 'Alaska'){
+		x_translation = -600
+		scale_translation = 3.5
+	  }
+		
     	var bounds = path.bounds(d),
     		//       x-max          x-min
     		dx = bounds[1][0] - bounds[0][0],
@@ -87,10 +101,10 @@ d3.json("world.json").then(function(json) {
     		dy = bounds[1][1] - bounds[0][1],
 
     		// Center x and center y
-    		x = (bounds[0][0] + bounds[1][0]) / 2,
+    		x = (bounds[0][0] + bounds[1][0]) / 2 + x_translation,
     		y = (bounds[0][1] + bounds[1][1]) / 2,
 
-    		scale = 0.5 / Math.max(dx / width, dy / height),
+    		scale = scale_translation / Math.max(dx / width, dy / height),
             translate = [width / 2 - scale * x, height / 2 - scale * y];
 
        g.transition()
