@@ -240,7 +240,7 @@ d3.json("world.json").then(function(json) {
 			.select('body')
 			.append('svg')
 			.attr('width', 1500)
-			.attr('height', 400)
+			.attr('height', 100)
 			.append('g')
 			.attr('transform', 'translate(500,30)');
 			

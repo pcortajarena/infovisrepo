@@ -1,4 +1,61 @@
 /* On mouse hover, lighten state color */
+
+body{
+	background-color: #b3e6ff;
+}
+
+#main{
+	display: inline-block;
+	position: relative;
+	width: 450px;
+	bottom: 600px;
+	left: 500px;
+}
+
+h1{
+	font-family: "Abadi MT Condensed Extra Bold", sans-serif;
+	font-size: 70px;
+	font-style: italic;
+	color: #223360;
+	text-align: center;
+	margin: 0;
+}
+
+h2{
+	font-family: "Abadi MT Condensed Extra Bold", sans-serif;
+	font-style: italic;
+	font-size: 26px;
+	color: #223360;
+	text-align: center;
+	margin: 0;
+}
+
+.main-button{
+	font-family: "Abadi MT Condensed Extra Bold", sans-serif;
+	font-size: 15px;
+	text-align: center;
+	text-decoration: none;
+	display: block;
+	position: relative;
+	width: 100px;
+	margin: 6px auto;
+	color: #223360;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	vertical-align: center;
+	background-color: white;
+}
+
+.main-button:focus{
+	outline: none;
+}
+
+.main-button:hover{
+	background-color: #b3e6ff;
+	border: 1px solid #223360;
+	cursor: pointer;
+}
+
 .background{
 	fill: #b3e6ff;
 }
@@ -26,6 +83,10 @@
 	color: rgb(185, 185, 185);
 	border-radius: 2px;        
 	pointer-events: none;    
+}
+
+.tick text{
+	fill: #223360;
 }
 
   /* Creates a small triangle extender for the tooltip */
