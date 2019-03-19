@@ -12,6 +12,7 @@ import asyncio
 logging.basicConfig(format=commons_config["DEFAULT"]["LOGGER_FORMAT"], level=logging.INFO)
 
 PATHS = [x.strip() for x in commons_config["XML_PROC"]["INPUT_FILES"].split(',')]
+OUT = commons_config["XML_PROC"]["OUTPUT_FILE"]
 
 BULK_SIZE = int(commons_config['API']['BULK_SIZE'])
 API_ENDPOINT = commons_config['API']['API_ENDPOINT']
@@ -24,17 +25,31 @@ ID_MAP = commons_config['JSON_FORMAT']['ID']
 
 ATTRIBUTES = [ID, DATEUPLOADED, "views"]
 URL_ATTRIBUTES = ['farm', ID, 'secret', 'server']
-LATITUDE = "latitude"
-LONGITUDE = "longitude"
+LATITUDE = commons_config['JSON_FORMAT']['LATITUDE']
+LONGITUDE = commons_config['JSON_FORMAT']['LONGITUDE']
 LOCATION = "location"
 PHOTO = "photo"
 LABELS = "labels"
-URL = "url"
+URL = commons_config['JSON_FORMAT']['URL']
 LABELS_OUT = commons_config["XML_PROC"]["LABELS_OUT"]
+
+OWNER = "owner"
+USERNAME = "username"
+TITLE = "title"
+URLS = "urls"
+PHOTOPAGE_URL = "url"
+
+USERNAME_MAP = commons_config['JSON_FORMAT']['USERNAME']
+TITLE_MAP = commons_config['JSON_FORMAT']['TITLE']
+PHOTOPAGE_URL_MAP = commons_config['JSON_FORMAT']['PHOTOPAGE_URL']
+
+WRITE_TYPE = "file" # file | api
+
 
 def parse_element(element):
     location_element = element.find(LOCATION)
     labels_element = element.find(LABELS)
+
     if location_element != None and labels_element != None:
         photo = {}
         labels = []
@@ -61,6 +76,9 @@ def parse_element(element):
         photo[URL] = url
         photo[LATITUDE] = float(location_element.attrib[LATITUDE])
         photo[LONGITUDE] = float(location_element.attrib[LONGITUDE])
+        photo[USERNAME_MAP] = element.find(OWNER).attrib[USERNAME]
+        photo[PHOTOPAGE_URL_MAP] = element.find(URLS)[0].text
+        photo[TITLE_MAP] = element.find(TITLE).text
         photo[LABELS] = labels
 
         return photo
@@ -69,7 +87,29 @@ def parse_element(element):
         return None
 
 
-def send(bulk):
+def save_bulk(bulk):
+    if WRITE_TYPE == "file":
+        write_bulk(bulk)
+
+    elif WRITE_TYPE == "api":
+        send_bulk(bulk)
+
+
+def write_bulk(bulk):
+    logging.info("Appending the data")
+    bulk = [json.dumps(x) for x in bulk]
+    bulk_str = "\n".join(bulk) + "\n"
+    with open(OUT, 'a+') as f:
+        f.write(bulk_str)
+    logging.info("The bulk appended")
+
+
+def write_string(string):
+    with open(OUT, 'a+') as f:
+        f.write(string)
+
+
+def send_bulk(bulk):
     logging.info("Sending the data")
     loop = asyncio.get_event_loop()
     loop.run_until_complete(async_send(bulk))
@@ -103,6 +143,18 @@ def write_labels(path, labels_dict):
         f.write(labels)
 
 
+def sort_file_lines(path, list_field, sort_field):
+    logging.info(f"Sorting json file")
+    out = {}
+    with open(path) as f: 
+        out[list_field] = [json.loads(x) for x in f.read().splitlines()] 
+
+    out[list_field].sort(key=lambda k: int(k[sort_field]))
+    with open(path, 'w+') as f:
+        json.dump(out, f, sort_keys=True, indent=4)
+    logging.info(f"File saved")
+
+
 def parse_file(xml_path, labels_dict):
     logging.info(f"Parsing {xml_path} and storing entries in the database")
     context = etree.iterparse(xml_path, events=("start", "end"))
@@ -118,12 +170,12 @@ def parse_file(xml_path, labels_dict):
                 labels_dict = update_labels(photo[LABELS], labels_dict)
 
             if len(bulk) >= BULK_SIZE:
-                send(bulk)
+                save_bulk(bulk)
                 bulk = []
 
         element.clear()
 
-    send(bulk)
+    save_bulk(bulk)
     logging.info(f"Finished parsing the data")
 
 
@@ -131,5 +183,5 @@ labels_dict = {}
 for path in PATHS:
     parse_file(path, labels_dict)
 
-print(labels_dict)
+sort_file_lines(OUT, "photos", "views")
 write_labels(LABELS_OUT, labels_dict)
