@@ -73,7 +73,7 @@ h2{
 	fill: #ffa31a;
 }
 
-.tooltip { 
+.country-tooltip { 
 	position: absolute;     
 	text-align: center;   
 	display: inline;         
@@ -83,6 +83,58 @@ h2{
 	color: rgb(185, 185, 185);
 	border-radius: 2px;        
 	pointer-events: none;    
+}
+
+.circle-tooltip {
+	position: absolute;     
+	text-align: left;   
+	display: inline;           
+	font: 12px sans-serif;    
+	background: rgba(255, 255, 255, 1.0);
+	color: #222;
+	border-radius: 0px;        
+	pointer-events: none; 
+
+	box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
+	-moz-box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
+}
+
+.circle-tooltip p {
+	margin: 1px;
+}
+
+.circle-tooltip-container {
+	height: auto;
+	overflow: hidden;
+}
+
+.circle-tooltip-img {
+	width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.circle-tooltip-right {
+	float: right;
+	padding: 12px 20px;
+}
+
+.circle-tooltip-title {
+	font: 14px sans-serif;
+	color: #222;
+}
+
+.circle-tooltip-text {
+	color: #666;
+}
+
+
+.circle-tooltip-left {
+	height: 120px;
+	float: none;
+    width: auto;
+	overflow: hidden;
 }
 
 .tick text{
@@ -117,7 +169,6 @@ body {
 .circles {
 	fill: #ff6348;
 	opacity: 0.85;
-	stroke: #ff6348;
 	paint-order: stroke;
 }
 
@@ -130,7 +181,6 @@ body {
 .circles-hidden {
 	opacity: 0.0;
 }
-
 
 .circles:hover{
 	fill: #800000;

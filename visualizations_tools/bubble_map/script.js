@@ -2,7 +2,7 @@ var width = 1440,
     height = 750,
     active = d3.select(null);
 
-var circR = 3;
+var circR = 1;
 
 var projection = d3.geoMercator()
 				   .translate([width/2, height/2 + 100])    // translate to center of screen
@@ -26,10 +26,21 @@ var g = svg.append("g")
     .style("stroke-width", "1.5px");
 
 
-var tip = d3.select("body")
+var country_tip = d3.select("body")
     .append("div")   
-    .attr("class", "tooltip")               
+    .attr("class", "country-tooltip")               
     .style("opacity", 0);
+
+var circle_tip = d3.select("body")
+    .append("div")
+    .attr("class", "circle-tooltip")
+    .style("opacity", 0);
+
+
+    var select = d3.select('body')
+    .append('select')
+    .attr('class','dropdown')
+    .on('change', onchange);
 
 // Load GeoJSON data 
 d3.json("world.json").then(function(json) {
@@ -62,7 +73,7 @@ d3.json("world.json").then(function(json) {
     }
 
     function areaMousemove(d) {
-        tip.html("<span><strong>Location:</strong></span> <span style='color:white'>" + d.properties.name + "</span>")
+        country_tip.html("<span><strong>Location:</strong></span> <span style='color:white'>" + d.properties.name + "</span>")
         .style("opacity", 0.9)
         .style("left", (d3.event.pageX + 50) + "px")   
         .style("top", d3.event.pageY + "px"); 
@@ -71,7 +82,7 @@ d3.json("world.json").then(function(json) {
     function areaMouseleave(d) {
         area = d3.select(this);
         area.classed("worldmap-active", false);
-        tip.style("opacity", 0);
+        country_tip.style("opacity", 0);
     }
 
     function areaClicked(d) {
@@ -118,14 +129,10 @@ d3.json("world.json").then(function(json) {
     			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
     }
 
-    function circleClicked(d){
-        console.log(d)
-    }
-
-    d3.json("api_call.json").then(function(data){
+    d3.json("jsonNUS.json").then(function(data){
 
         // only get the list of photo objects
-        data = data["results"]
+        data = data["photos"]
         // console.log("JSON ::::::",data);
 
         g.selectAll("circle")
@@ -146,19 +153,57 @@ d3.json("world.json").then(function(json) {
             catch(error) {}
             })
             .attr("r", circR)
-            .on("click", circleClicked);
+            .on("click", circleClicked)
+            .on("mouseover", circleMouseover)
+            .on("mouseleave", circleMouseleave)
 
-            var label = "sky";
+        function circleClicked(d){
+
+        }
+
+        function circleMouseover(d){
+            var sel = d3.select(this);
+            sel.raise().each(pulse);
+
+            img = d.url;
+            username = d.username;
+            title = d.title;
+            labels = d.labels;
+            views = d.views;
+            date = d.date;
+            page = d.photopage_url;
+            
+
+            circle_tip.html(
+                "<div class='circle-tooltip-container'>" +
+                    "<div class='circle-tooltip-right'>" + 
+                        "<p class='circle-tooltip-title'><strong>" + title + "</strong></p>" +
+                        "<p class='circle-tooltip-text'>Username: " + username + "</p>" +    
+                        "<p class='circle-tooltip-text'> Labels: " + labels + "</p>" +
+                        "<p class='circle-tooltip-text'> Timestamp: " + date + "</p>" +
+                        "<p class='circle-tooltip-text'>" + views + " views </p>" +
+                        // "<span><strong>Photo page:</strong></span> <span style='color:black'><a href="+ page +"> Visit flickr </a></span><br/>" +
+                    "</div>" +
+                    "<div class='circle-tooltip-left'><img class='circle-tooltip-img' src=" + img + "></div>" +
+                "</div>"
+                )
+            .style("opacity", 1.0)
+            .style("left", (d3.event.pageX + 50) + "px")   
+            .style("top", d3.event.pageY + "px"); 
+        }
+
+        function circleMouseleave(d){
+            var sel = d3.select(this);
+            sel.each(pulseStop);
+            circle_tip.style("opacity", 0);
+        }
 
         function filterCircles(label){
             console.log("FilterCircles");
             g.selectAll("circle")
             .classed("circles-active", function(d) {
-                var sel = d3.select(this);
-                sel.each(pulseStop);
-            
-                if((d.labels.includes(label))){
-                    sel.raise().each(pulse);
+                console.log(label);
+                if(d.labels.includes(label)){
                     return true;
                 }
                 
@@ -177,7 +222,7 @@ d3.json("world.json").then(function(json) {
         function pulse() {
             var circle = d3.select(this);
             r = circR;
-            stroke = 6;
+            stroke = 2;
 
             circle
             .attr('r', r) 
@@ -228,8 +273,8 @@ d3.json("world.json").then(function(json) {
                 .text(function (d) {return d.label; });
                         
             function onchange() {
-                console.log("onchange");
-                label = d3.select('select').property('value');
+                label = d3.select(this).property('value');
+                console.log(label);
                 filterCircles(label);
             }
 
