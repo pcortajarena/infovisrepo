@@ -129,7 +129,7 @@ d3.json("world.json").then(function(json) {
     			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
     }
 
-    d3.json("jsonNUS.json").then(function(data){
+    d3.json("NUS.json").then(function(data){
 
         // only get the list of photo objects
         data = data["photos"]
