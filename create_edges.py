@@ -25,15 +25,17 @@ if __name__ == '__main__':
                 edges[line[0]].append(line[1])
         pbar.update(1)
 
-    with open('data/jsonNUS.json') as f:
+    with open('visualizations_tools/bubble_map/NUS.json') as f:
         data = json.load(f)
 
     with open('visualizations_tools/bubble_map/world.json') as f:
         world = json.load(f)
+    
 
     latlon_data = {}
     for el in data['photos']:
         latlon_data[el['id']] = [el['latitude'], el['longitude']]
+
 
     edges_copy = {}
     for k in edges.keys():
@@ -43,10 +45,10 @@ if __name__ == '__main__':
                 if int(v) in latlon_data:
                     edges_copy[k].append([latlon_data[int(v)][0], latlon_data[int(v)][1]])
 
-            p = Point(latlon_data[k][0], latlon_data[k][1])
+            p = Point(latlon_data[int(k)][0], latlon_data[int(k)][1])
             for el in world['features']:
                 pol = el['geometry']['coordinates'][0]
-                if pol.contains(p):
+                if p in pol:
                     for v in edges[k]:
                         if int(v) in latlon_data:
                             p2 = Point(latlon_data[v][0], latlon_data[v][1])
