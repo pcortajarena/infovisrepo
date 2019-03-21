@@ -40,6 +40,7 @@ var circle_tip = d3.select("body")
 
 d3.select('#remove-networks').on("click", function(){
     d3.selectAll('.network').remove();
+    d3.selectAll('.circles').style('fill', '#ff6348');
 });
 
 // Load GeoJSON data
