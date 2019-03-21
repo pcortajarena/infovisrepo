@@ -73,27 +73,27 @@ h2{
 	fill: #ffa31a;
 }
 
-.country-tooltip { 
-	position: absolute;     
-	text-align: center;   
-	display: inline;         
-	padding: 12px;       
-	font: 12px sans-serif;    
+.country-tooltip {
+	position: absolute;
+	text-align: center;
+	display: inline;
+	padding: 12px;
+	font: 12px sans-serif;
 	background: rgba(0, 0, 0, 0.8);
 	color: rgb(185, 185, 185);
-	border-radius: 2px;        
-	pointer-events: none;    
+	border-radius: 2px;
+	pointer-events: none;
 }
 
 .circle-tooltip {
-	position: absolute;     
-	text-align: left;   
-	display: inline;           
-	font: 12px sans-serif;    
+	position: absolute;
+	text-align: left;
+	display: inline;
+	font: 12px sans-serif;
 	background: rgba(255, 255, 255, 1.0);
 	color: #222;
-	border-radius: 0px;        
-	pointer-events: none; 
+	border-radius: 0px;
+	pointer-events: none;
 
 	box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
 	-webkit-box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
@@ -187,8 +187,14 @@ body {
 	stroke: #800000;
 }
 
-.dropdown {
-	position:absolute;
-	left:20px;
-	top:20px;
+#partitionSVG{
+	position: relative;
+	bottom: 200px;
+	margin-left: 40px;
+}
+
+#slider{
+	position: relative;
+	bottom: 420px;
+	left: 150px;
 }

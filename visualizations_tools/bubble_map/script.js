@@ -27,8 +27,8 @@ var g = svg.append("g")
 
 
 var country_tip = d3.select("body")
-    .append("div")   
-    .attr("class", "country-tooltip")               
+    .append("div")
+    .attr("class", "country-tooltip")
     .style("opacity", 0);
 
 var circle_tip = d3.select("body")
@@ -36,13 +36,11 @@ var circle_tip = d3.select("body")
     .attr("class", "circle-tooltip")
     .style("opacity", 0);
 
+d3.select('#remove-networks').on("click", function(){
+    d3.selectAll('line').remove();
+});
 
-    var select = d3.select('body')
-    .append('select')
-    .attr('class','dropdown')
-    .on('change', onchange);
-
-// Load GeoJSON data 
+// Load GeoJSON data
 d3.json("world.json").then(function(json) {
 
     // Bind the data to the SVG and create one path per GeoJSON feature
@@ -69,14 +67,14 @@ d3.json("world.json").then(function(json) {
 
     function areaMouseover(d) {
         area = d3.select(this);
-        area.classed("worldmap-active", true); 
+        area.classed("worldmap-active", true);
     }
 
     function areaMousemove(d) {
         country_tip.html("<span><strong>Location:</strong></span> <span style='color:white'>" + d.properties.name + "</span>")
         .style("opacity", 0.9)
-        .style("left", (d3.event.pageX + 50) + "px")   
-        .style("top", d3.event.pageY + "px"); 
+        .style("left", (d3.event.pageX + 50) + "px")
+        .style("top", d3.event.pageY + "px");
     }
 
     function areaMouseleave(d) {
@@ -94,8 +92,8 @@ d3.json("world.json").then(function(json) {
       var x_translation = 0
 	  var scale_translation = 0.5
 	  var y_translation = 0
-	  
-	  if (d.properties.name == 'Canada'){ 
+
+	  if (d.properties.name == 'Canada'){
 		x_translation = 150
 		scale_translation = 1.0
 	  } else if (d.properties.name == 'Russia'){
@@ -109,27 +107,27 @@ d3.json("world.json").then(function(json) {
 		 scale_translation = 3.5
 		 y_translation = -92
 	  }
-		
-    	var bounds = path.bounds(d),
-    		//       x-max          x-min
-    		dx = bounds[1][0] - bounds[0][0],
-    		//       y-max          y-min
-    		dy = bounds[1][1] - bounds[0][1],
 
-    		// Center x and center y
-    		x = (bounds[0][0] + bounds[1][0]) / 2 + x_translation,
-    		y = (bounds[0][1] + bounds[1][1]) / 2 + y_translation,
+  	var bounds = path.bounds(d),
+  		//       x-max          x-min
+  		dx = bounds[1][0] - bounds[0][0],
+  		//       y-max          y-min
+  		dy = bounds[1][1] - bounds[0][1],
 
-    		scale = scale_translation / Math.max(dx / width, dy / height),
-            translate = [width / 2 - scale * x, height / 2 - scale * y];
+  		// Center x and center y
+  		x = (bounds[0][0] + bounds[1][0]) / 2 + x_translation,
+  		y = (bounds[0][1] + bounds[1][1]) / 2 + y_translation,
 
-       g.transition()
-           .duration(750)
-           .style("stroke-width", 1.0 / scale + "px")
-    			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+  		scale = scale_translation / Math.max(dx / width, dy / height),
+          translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+     g.transition()
+         .duration(750)
+         .style("stroke-width", 1.0 / scale + "px")
+  			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
     }
 
-    d3.json("NUS.json").then(function(data){
+    d3.json("shortNUS.json").then(function(data){
 
         // only get the list of photo objects
         data = data["photos"]
@@ -159,11 +157,28 @@ d3.json("world.json").then(function(json) {
 
         function circleClicked(d){
 
+            d3.select(this).style('fill', 'blue');
+            reset();
+
+            d3.json('/infovisrepo/data/edges_copy.json').then(function(data2){
+                for (var k in data2[d.id]){
+                    myline = g.append("line")
+                        .attr('class', 'network')
+                        .attr("id", d.id)
+                        .style("stroke", "blue")
+                        .style("stroke-opacity", .5)
+                        .attr("x1", projection([d["longitude"], d["latitude"]])[0])
+                        .attr("y1", projection([d["longitude"], d["latitude"]])[1])
+                        .attr("x2", projection([data2[d.id][k][1], data2[d.id][k][0]])[0])
+                        .attr("y2", projection([data2[d.id][k][1], data2[d.id][k][0]])[1])
+                }
+            });
+
         }
 
         function circleMouseover(d){
             var sel = d3.select(this);
-            sel.raise().each(pulse);
+            // sel.raise().each(pulse);
 
             img = d.url;
             username = d.username;
@@ -172,13 +187,13 @@ d3.json("world.json").then(function(json) {
             views = d.views;
             date = d.date;
             page = d.photopage_url;
-            
+
 
             circle_tip.html(
                 "<div class='circle-tooltip-container'>" +
-                    "<div class='circle-tooltip-right'>" + 
+                    "<div class='circle-tooltip-right'>" +
                         "<p class='circle-tooltip-title'><strong>" + title + "</strong></p>" +
-                        "<p class='circle-tooltip-text'>Username: " + username + "</p>" +    
+                        "<p class='circle-tooltip-text'>Username: " + username + "</p>" +
                         "<p class='circle-tooltip-text'> Labels: " + labels + "</p>" +
                         "<p class='circle-tooltip-text'> Timestamp: " + date + "</p>" +
                         "<p class='circle-tooltip-text'>" + views + " views </p>" +
@@ -188,8 +203,8 @@ d3.json("world.json").then(function(json) {
                 "</div>"
                 )
             .style("opacity", 1.0)
-            .style("left", (d3.event.pageX + 50) + "px")   
-            .style("top", d3.event.pageY + "px"); 
+            .style("left", (d3.event.pageX + 50) + "px")
+            .style("top", d3.event.pageY + "px");
         }
 
         function circleMouseleave(d){
@@ -206,7 +221,7 @@ d3.json("world.json").then(function(json) {
                 if(d.labels.includes(label)){
                     return true;
                 }
-                
+
                 return false;
             })
             .classed("circles-hidden", function(d) {
@@ -218,33 +233,33 @@ d3.json("world.json").then(function(json) {
             });
         }
 
-        
+
         function pulse() {
             var circle = d3.select(this);
             r = circR;
             stroke = 2;
 
             circle
-            .attr('r', r) 
+            .attr('r', r)
             .attr("stroke-width", 0)
             .attr("stroke-opacity", 0.5)
-            .transition()        
+            .transition()
             .ease(d3.easeSin)
-            .duration(450)   
-            .attr('r', 1.5 * r) 
-            
-            .transition()   
+            .duration(450)
+            .attr('r', 1.5 * r)
+
+            .transition()
             .ease(d3.easeLinear)
-            .duration(550) 
-            .attr('r', r)   
+            .duration(550)
+            .attr('r', r)
             .attr("stroke-width", stroke)
             .attr("stroke-opacity", 0.25)
 
             .transition()
-            .duration(600) 
+            .duration(600)
             .attr("stroke-width", 2 * stroke)
             .attr("stroke-opacity", 0.0)
-            .on("end", pulse);  
+            .on("end", pulse);
         };
 
         function pulseStop(){
@@ -255,36 +270,163 @@ d3.json("world.json").then(function(json) {
             .attr("stroke-opacity", 0);
         }
 
-        var select = d3.csv("labels.csv").then(function(labels){
+        const format = d3.format(",d");
+        const width_sunburst = 250;
+        const radius = width_sunburst / 6;
 
-            labels = labels.slice(0,20);
+        var filterLabel = "All data"
 
-            var select = d3.select('body')
-                .append('select')
-                .attr('class','dropdown')
-                .on('change', onchange);
+        const arc = d3.arc()
+                .startAngle(d => d.x0)
+                .endAngle(d => d.x1)
+                .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+                .padRadius(radius * 1.5)
+                .innerRadius(d => d.y0 * radius)
+                .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius - 1));
 
-            var options = select
-                .selectAll('option')
-                .data(labels)
-                .enter()
-                .append('option')
-                .attr("value", function (d) {return d.label;})
-                .text(function (d) {return d.label; });
-                        
-            function onchange() {
-                label = d3.select(this).property('value');
-                console.log(label);
-                filterCircles(label);
+        const partition = data => {
+            const root = d3.hierarchy(data)
+                    .sum(d => d.value)
+                    .sort((a, b) => b.value - a.value);
+            return d3.partition()
+                    .size([2 * Math.PI, root.height + 1])
+                    (root);
+        }
+
+        d3.json("labels.json").then(data => {
+            const root = partition(data);
+            const color = d3.scaleOrdinal().range(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
+
+            root.each(d => d.current = d);
+
+            const svg = d3.select("#partitionSVG")
+                    .style("font", "6px sans-serif");
+
+            const g = svg.append("g")
+                    .attr("transform", `translate(${width_sunburst / 2},${width_sunburst / 2})`);
+
+        	text = svg.append('text')
+        	  .text('All data')
+        	  .attr('dy','0.35em')
+        	  .attr('transform', 'translate(125,123)')
+        	  .style("text-anchor", "middle")
+
+            const path = g.append("g")
+                    .selectAll("path")
+                    .data(root.descendants().slice())
+                    .join("path")
+                    .attr("fill", d => {
+                        while (d.depth > 1)
+                            d = d.parent;
+                        return color(d.data.name);
+                    })
+                    .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
+                    .attr("d", d => arc(d.current));
+
+            path.filter(d => d)
+                    .style("cursor", "pointer")
+                    .on("click", clicked);
+
+            path.append("title")
+                    .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+
+            const label = g.append("g")
+                    .attr("pointer-events", "none")
+                    .attr("text-anchor", "middle")
+                    .style("user-select", "none")
+                    .selectAll("text")
+                    .data(root.descendants().slice())
+                    .join("text")
+                    .attr("dy", "0.35em")
+                    .attr("fill-opacity", d => +labelVisible(d.current))
+                    .attr("transform", d => labelTransform(d.current))
+                    .text(d => d.data.name);
+
+
+            const parent = g.append("circle")
+                    .datum(root)
+                    .attr("r", radius)
+                    .attr("fill", "none")
+                    .attr("pointer-events", "all")
+                    .on("click", clicked);
+
+            function clicked(p) {
+                parent.datum(p.parent || root);
+
+                root.each(d => d.target = {
+                        x0: Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+                        x1: Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+                        y0: Math.max(0, d.y0 - p.depth),
+                        y1: Math.max(0, d.y1 - p.depth)
+                    });
+
+                const t = g.transition().duration(750);
+
+                // Transition the data on all arcs, even the ones that aren’t visible,
+                // so that if this transition is interrupted, entering arcs will start
+                // the next transition from the desired position.
+
+        		// last layer
+        		if (p.children == undefined){
+        			path.transition(t)
+        					.tween("data", d => {
+        						const i = d3.interpolate(d.current, d.target);
+        						return t => d.current = i(t);
+        					})
+        					.attrTween("d", d => () => arc(d.current));
+
+        			label.filter(function (d) {
+        				return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+                }).transition(t)
+                        .attr("fill-opacity", d => +labelVisible(d.target))
+                        .attrTween("transform", d => () => labelTransform(d.current));
+        		} else {
+        			path.transition(t)
+        					.tween("data", d => {
+        						const i = d3.interpolate(d.current, d.target);
+        						return t => d.current = i(t);
+        					})
+        					.filter(function (d) {
+        						return +this.getAttribute("fill-opacity") || arcVisible(d.target);
+        					})
+
+        					.attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
+        					.attrTween("d", d => () => arc(d.current));
+
+        			label.filter(function (d) {
+        				return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+        			}).transition(t)
+        					.attr("fill-opacity", d => +labelVisible(d.target))
+        					.attrTween("transform", d => () => labelTransform(d.current));
+        				}
+        			text.text(p.data.name)
+        			filterLabel = p.data.name
+              if (p.depth > 1 || (p.depth > 2 && p.data.name == "Nature")){
+                filterCircles(filterLabel)
+              } else if (p.depth == 0) {
+                filterCircles(filterLabel)
+              }
             }
 
-            onchange();
-        });   
-		
+            function arcVisible(d) {
+                return d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
+            }
+
+            function labelVisible(d) {
+                return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+            }
+
+            function labelTransform(d) {
+                const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+                const y = (d.y0 + d.y1) / 2 * radius;
+                return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+            }
+        })
+
 		// Slider
 		var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
 		var tickLabels = ['jan','feb','mar','apr','may','jun','jul','aug','sept','oct','nov','dec']
-		
+
 		// Range
 		var sliderRange = d3
 			.sliderBottom()
@@ -294,22 +436,22 @@ d3.json("world.json").then(function(json) {
 			.tickFormat(function(d,i){ return tickLabels[i] })
 			.step(1)
 			.default([1,12])
-			.fill('#2196f3') 
+			.fill('#2196f3')
 			.on('onchange', val => {
-			filterCircles(label);
+			filterCircles(filterLabel);
 			});
-		
+
 
 		var gRange = d3
 			.select('body')
 			.append('svg')
+            .attr('id', 'slider')
 			.attr('width', 1500)
 			.attr('height', 100)
 			.append('g')
 			.attr('transform', 'translate(500,30)');
-			
+
 
 		 gRange.call(sliderRange);
     });
 });
-
