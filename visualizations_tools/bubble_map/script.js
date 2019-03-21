@@ -526,38 +526,99 @@ d3.json("world.json").then(function(json) {
                 return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
             }
         })
+         // load big bubbles
+        d3.json("country_att_1").then(function(data){
+                // only get the list of photo objects
+                function datesSelect(data_things,min_month,max_month){
+                   
+                    check_list = [];
+                    count_list = [];
+                    //console.log(min_month,max_month));
+                    for(i=min_month;i<max_month+1;i++){
+                        if (i<10){
+                            cur_month = "0" + i
+                        }
+                        else{
+                            cur_month = i
+                        }
+                        // push the monthly data into right format
+                        countries_list = Object.keys(data[cur_month])
+                        data_list_length = countries_list.length;
+                        for(j=0;j<data_list_length;j++){
+                            cur_country = countries_list[j];
+                            if (count_list.indexOf(cur_country)==-1){
+                                check_list[cur_country] = {'count':0,'lat':data[cur_month][cur_country]["lat"],'lon':data[cur_month][cur_country]["lon"],'country':cur_country}
+                                count_list.push(cur_country)
+                            }
+                            check_list[cur_country]['count'] += data[cur_month][cur_country]["count"]
+                        }
+                    }
+                    agg_data = Object.values(check_list)
 
-		// Slider
-		var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
-		var tickLabels = ['jan','feb','mar','apr','may','jun','jul','aug','sept','oct','nov','dec']
+                    var z = d3.scaleLinear()
+                        .domain([1, check_list['United States of America']['count']])
+                        .range([ 2, 30]);
 
-		// Range
-		var sliderRange = d3
-			.sliderBottom()
-			.width(400)
-			.min(d3.min(slider_data))
-			.max(d3.max(slider_data))
-			.tickFormat(function(d,i){ return tickLabels[i] })
-			.step(1)
-			.default([1,12])
-			.fill('#2196f3')
-			.on('onchange', val => {
-			filterCircles(filterLabel);
-			});
+                    g.selectAll("agg_circle")
+                    .data(agg_data)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "agg_circle")
+                    .attr("cx", function(d) {
+                        return projection([d["lat"], d["lon"]])[0];
+                    })
+                    .attr("cy", function(d) {
+                        return projection([d["lat"], d["lon"]])[1];
+                    })
+                    .attr("r", function(d){
+                        return z(d['count'])
+                    })
+                    .on("click", function(d){
+                        console.log(d)
+                    })
+                    .on("mouseover", function(d){
+                        console.log(d)
+                    })
+                    .on("mouseleave", function(d){
+                        console.log(d)
+                    })
+                    
+                }
+                // aggregated bubbles
+                data_test = datesSelect(data,1,12);
+            });
+
+            // Slider
+            var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
+            var tickLabels = ['jan','feb','mar','apr','may','jun','jul','aug','sept','oct','nov','dec']
+
+            // Range
+            var sliderRange = d3
+                .sliderBottom()
+                .width(400)
+                .min(d3.min(slider_data))
+                .max(d3.max(slider_data))
+                .tickFormat(function(d,i){ return tickLabels[i] })
+                .step(1)
+                .default([1,12])
+                .fill('#2196f3')
+                .on('onchange', val => {
+                filterCircles(filterLabel);
+                });
 
 
-		var gRange = d3
-			.select('body')
-			.append('svg')
-            .attr('id', 'slider')
-			.attr('width', 1500)
-			.attr('height', 100)
-			.append('g')
-			.attr('transform', 'translate(500,30)');
+            var gRange = d3
+                .select('body')
+                .append('svg')
+                .attr('id', 'slider')
+                .attr('width', 1500)
+                .attr('height', 100)
+                .append('g')
+                .attr('transform', 'translate(500,30)');
 
 
-         gRange.call(sliderRange);
-         panel.raise()
-    });
+             gRange.call(sliderRange);
+             panel.raise()
+        });
 
 });
