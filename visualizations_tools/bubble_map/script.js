@@ -43,14 +43,16 @@ d3.select('#remove-networks').on("click", function(){
     d3.selectAll('.circles').style('fill', '#ff6348');
 });
 
+var selected_bubbles = []
+
 // Load GeoJSON data
 var panel = d3.select('body')
     .append("div")
     .attr("class", "panel panel-hidden")
     .style("width", width)
     .style("opacity", 1.0)
-    .style("left", (width - 600) + "px")   
-    .style("top", (height - 250) + "px"); 
+    .style("left", (width - 600) + "px")
+    .style("top", (height - 250) + "px");
 
 var panelButton = d3.select('body')
     .append('button')
@@ -80,30 +82,7 @@ function openPanel() {
     panel.classed("panel-hidden", false);
 }
 
-// var select = d3.select('body')
-//     .append('select')
-//     .attr('class','dropdown')
-//     .on('change', onchange);
-
-// var panelCard = panel
-//     .append("div")
-//     .attr("class", "card");
-
-
-    // panel.html(
-    //     "<div class='card'>" +
-    //         "<div class='card-img-container'>" +
-    //             "<img class='card-img' src='https://farm3.staticflickr.com/2284/1809970743_cba7b7ec25.jpg'>" +
-    //         "</div>" +
-    //         "<div class='card-info'>" + 
-    //             "<p class='card-title'><strong>John Doe and two lambs and the small wolf from the</strong></p>" +
-    //             "<p class='card-text'>Architect & Engineer</p>" +  
-    //         "</div>" +
-    //     "</div>"
-    // )
-
-    
-// // Load GeoJSON data 
+// // Load GeoJSON data
 d3.json("world.json").then(function(json) {
 
     // Bind the data to the SVG and create one path per GeoJSON feature
@@ -117,7 +96,7 @@ d3.json("world.json").then(function(json) {
         .on('mouseover', areaMouseover)
         .on('mousemove', areaMousemove)
         .on('mouseleave', areaMouseleave)
-    
+
     function reset(){
         active.classed("active", false);
         active = d3.select(null);
@@ -190,25 +169,40 @@ d3.json("world.json").then(function(json) {
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 
         openPanel();
-        circles = g.selectAll("circle").data();
+        bubbles = g.selectAll("circle")
+        circles = bubbles.data();
         topN = [];
+        topNbubbles = [];
         country_name = d.properties.name;
 
         for (var i=0; i<circles.length; i++) {
             if(circles[i].location == country_name) {
                 topN.push(circles[i]);
+                topNbubbles.push(bubbles.nodes()[i]);
 
                 if(topN.length >= topSize){
                     break;
                 }
             }
         }
-        
-        fillPanel(topN);
+
+        fillPanel(topN, topNbubbles);
     }
 
-    function fillPanel(entries){
+    function fillPanel(entries, bubbles){
         panel.html("");
+
+        for (var i=0; i<selected_bubbles.length; i++) {
+            d3.select(selected_bubbles[i]).classed("circles-selected", false)
+        }
+        console.log(bubbles);
+        selected_bubbles = []
+        selected_bubbles = bubbles;
+        console.log(selected_bubbles);
+
+        for (var i=0; i<selected_bubbles.length; i++) {
+            d3.select(selected_bubbles[i]).classed("circles-selected", true).raise();;
+        }
 
         for (var i=0; i<entries.length; i++) {
             panel.append("div")
@@ -217,14 +211,14 @@ d3.json("world.json").then(function(json) {
                 "<div class='card-img-container'>" +
                     "<a href='" + entries[i].photopage_url + "' target='_blank'><img class='card-img' src='" + entries[i].url + "'></a>" +
                 "</div>" +
-                "<div class='card-info'>" + 
+                "<div class='card-info'>" +
                     "<p class='card-title'><strong>" + entries[i].title + "</strong></p>" +
-                    "<p class='card-text'> Username: " + entries[i].username + "</p>" +  
+                    "<p class='card-text'> Username: " + entries[i].username + "</p>" +
                     "<p class='card-text'> Labels: " + entries[i].labels.join(', ') + "</p>" +
                     "<p class='card-text'> Timestamp: " + entries[i].date + "</p>" +
                     "<p class='card-text'>" + entries[i].views + " views </p>" +
                 "</div>" +
-            "</div>" 
+            "</div>"
             )
         }
     }
@@ -263,7 +257,7 @@ d3.json("world.json").then(function(json) {
             reset();
 
             openPanel();
-            fillPanel([d]);
+            fillPanel([d], [this]);
 
             d3.json('/infovisrepo/data/edges_copy.json').then(function(data2){
                 for (var k in data2[d.id]){
@@ -399,7 +393,9 @@ d3.json("world.json").then(function(json) {
 
         d3.json("labels.json").then(data => {
             const root = partition(data);
-            const color = d3.scaleOrdinal().range(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
+
+            // optional colors: d3.interpolatePlasma, d3.interpolateSinebow, d3.interpolateInferno, d3.interpolateRdYlGn
+            const color = d3.scaleOrdinal().range(d3.quantize(d3.interpolateSinebow, data.children.length + 1));
 
             root.each(d => d.current = d);
 
@@ -417,7 +413,7 @@ d3.json("world.json").then(function(json) {
 
             const path = g.append("g")
                     .selectAll("path")
-                    .data(root.descendants().slice())
+                    .data(root.descendants().slice(1))
                     .join("path")
                     .attr("fill", d => {
                         while (d.depth > 1)
@@ -439,7 +435,7 @@ d3.json("world.json").then(function(json) {
                     .attr("text-anchor", "middle")
                     .style("user-select", "none")
                     .selectAll("text")
-                    .data(root.descendants().slice())
+                    .data(root.descendants().slice(1))
                     .join("text")
                     .attr("dy", "0.35em")
                     .attr("fill-opacity", d => +labelVisible(d.current))
@@ -526,38 +522,99 @@ d3.json("world.json").then(function(json) {
                 return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
             }
         })
+         // load big bubbles
+        d3.json("country_att_1").then(function(data){
+                // only get the list of photo objects
+                function datesSelect(data_things,min_month,max_month){
 
-		// Slider
-		var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
-		var tickLabels = ['jan','feb','mar','apr','may','jun','jul','aug','sept','oct','nov','dec']
+                    check_list = [];
+                    count_list = [];
+                    //console.log(min_month,max_month));
+                    for(i=min_month;i<max_month+1;i++){
+                        if (i<10){
+                            cur_month = "0" + i
+                        }
+                        else{
+                            cur_month = i
+                        }
+                        // push the monthly data into right format
+                        countries_list = Object.keys(data[cur_month])
+                        data_list_length = countries_list.length;
+                        for(j=0;j<data_list_length;j++){
+                            cur_country = countries_list[j];
+                            if (count_list.indexOf(cur_country)==-1){
+                                check_list[cur_country] = {'count':0,'lat':data[cur_month][cur_country]["lat"],'lon':data[cur_month][cur_country]["lon"],'country':cur_country}
+                                count_list.push(cur_country)
+                            }
+                            check_list[cur_country]['count'] += data[cur_month][cur_country]["count"]
+                        }
+                    }
+                    agg_data = Object.values(check_list)
 
-		// Range
-		var sliderRange = d3
-			.sliderBottom()
-			.width(400)
-			.min(d3.min(slider_data))
-			.max(d3.max(slider_data))
-			.tickFormat(function(d,i){ return tickLabels[i] })
-			.step(1)
-			.default([1,12])
-			.fill('#2196f3')
-			.on('onchange', val => {
-			filterCircles(filterLabel);
-			});
+                    var z = d3.scaleLinear()
+                        .domain([1, check_list['United States of America']['count']])
+                        .range([ 2, 30]);
+
+                    g.selectAll("agg_circle")
+                    .data(agg_data)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "agg_circle")
+                    .attr("cx", function(d) {
+                        return projection([d["lat"], d["lon"]])[0];
+                    })
+                    .attr("cy", function(d) {
+                        return projection([d["lat"], d["lon"]])[1];
+                    })
+                    .attr("r", function(d){
+                        return z(d['count'])
+                    })
+                    .on("click", function(d){
+                        console.log(d)
+                    })
+                    .on("mouseover", function(d){
+                        console.log(d)
+                    })
+                    .on("mouseleave", function(d){
+                        console.log(d)
+                    })
+
+                }
+                // aggregated bubbles
+                data_test = datesSelect(data,1,12);
+            });
+
+            // Slider
+            var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
+            var tickLabels = ['jan','feb','mar','apr','may','jun','jul','aug','sept','oct','nov','dec']
+
+            // Range
+            var sliderRange = d3
+                .sliderBottom()
+                .width(400)
+                .min(d3.min(slider_data))
+                .max(d3.max(slider_data))
+                .tickFormat(function(d,i){ return tickLabels[i] })
+                .step(1)
+                .default([1,12])
+                .fill('#2196f3')
+                .on('onchange', val => {
+                filterCircles(filterLabel);
+                });
 
 
-		var gRange = d3
-			.select('body')
-			.append('svg')
-            .attr('id', 'slider')
-			.attr('width', 1500)
-			.attr('height', 100)
-			.append('g')
-			.attr('transform', 'translate(500,30)');
+            var gRange = d3
+                .select('body')
+                .append('svg')
+                .attr('id', 'slider')
+                .attr('width', 1500)
+                .attr('height', 100)
+                .append('g')
+                .attr('transform', 'translate(500,30)');
 
 
-         gRange.call(sliderRange);
-         panel.raise()
-    });
+             gRange.call(sliderRange);
+             panel.raise()
+        });
 
 });

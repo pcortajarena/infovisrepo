@@ -254,6 +254,11 @@ h2{
 	opacity: 0.85;
 }
 
+.circles-selected {
+	fill: #800000;
+	stroke: #800000;
+}
+
 .circles-hidden {
 	opacity: 0.0;
 }
