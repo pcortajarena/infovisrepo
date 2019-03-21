@@ -37,7 +37,7 @@ var circle_tip = d3.select("body")
     .style("opacity", 0);
 
 d3.select('#remove-networks').on("click", function(){
-    d3.selectAll('line').remove();
+    d3.selectAll('.network').remove();
 });
 
 // Load GeoJSON data
