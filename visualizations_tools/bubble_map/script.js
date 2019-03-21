@@ -19,6 +19,9 @@ var svg = d3.select("body")
 			.attr("width", width)
             .attr("height", height);
 
+// first view
+document.querySelector('body').classList.add('infov_hidden')
+
 svg.append("rect")
     .attr("class", "background")
     .attr("width", width)
@@ -126,8 +129,12 @@ d3.json("world.json").then(function(json) {
     }
 
     function areaClicked(d) {
-
-    	if (active.node() === this) return reset();
+        
+    	if (active.node() === this){
+            document.querySelector('body').classList.add('infov_hidden')
+            return reset();
+        }
+        document.querySelector('body').classList.remove('infov_hidden')
         active.classed("active", false);
         active = d3.select(this).classed("active", true);
 
@@ -169,20 +176,31 @@ d3.json("world.json").then(function(json) {
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 
         openPanel();
-        bubbles = g.selectAll("circle")
+        bubbles = g.selectAll(".circles")
         circles = bubbles.data();
         topN = [];
         topNbubbles = [];
-        country_name = d.properties.name;
 
+        indices = {};
+
+        country_name = d.properties.name;
         for (var i=0; i<circles.length; i++) {
             if(circles[i].location == country_name) {
-                topN.push(circles[i]);
-                topNbubbles.push(bubbles.nodes()[i]);
+                indices[i] = circles[i].views;
+            }
+        }
 
-                if(topN.length >= topSize){
-                    break;
-                }
+        var result = Object.keys(indices).sort(function(a, b) {
+            return indices[b] - indices[a];
+        })
+
+        for (var i=0; i<result.length; i++) {
+            idx = result[i];
+            topN.push(circles[idx]);
+            topNbubbles.push(bubbles.nodes()[idx]);
+
+            if(i >= topSize){
+                break;
             }
         }
 
@@ -193,15 +211,17 @@ d3.json("world.json").then(function(json) {
         panel.html("");
 
         for (var i=0; i<selected_bubbles.length; i++) {
-            d3.select(selected_bubbles[i]).classed("circles-selected", false)
+            d3.select(selected_bubbles[i]).classed("circles-selected", false);
         }
-        console.log(bubbles);
+//<<<<<<< HEAD
+//=======
+
+//>>>>>>> ddb52e0d46fb96b3ba2e71683e54ca6f6eaea6a1
         selected_bubbles = []
         selected_bubbles = bubbles;
-        console.log(selected_bubbles);
 
         for (var i=0; i<selected_bubbles.length; i++) {
-            d3.select(selected_bubbles[i]).classed("circles-selected", true).raise();;
+            d3.select(selected_bubbles[i]).classed("circles-selected", true).raise();
         }
 
         for (var i=0; i<entries.length; i++) {
@@ -221,6 +241,8 @@ d3.json("world.json").then(function(json) {
             "</div>"
             )
         }
+
+        g.selectAll("circle").order();
     }
 
     d3.json("NUS.json").then(function(data){
@@ -229,7 +251,7 @@ d3.json("world.json").then(function(json) {
         data = data["photos"]
         // console.log("JSON ::::::",data);
 
-        g.selectAll("circle")
+        g.selectAll(".circles")
             .data(data)
             .enter()
             .append("circle")
@@ -314,7 +336,7 @@ d3.json("world.json").then(function(json) {
         }
 
         function filterCircles(label){
-            g.selectAll("circle")
+            g.selectAll(".circles")
             .classed("circles-active", function(d) {
                 if(d.labels.includes(label)){
                     return true;
@@ -443,7 +465,7 @@ d3.json("world.json").then(function(json) {
                     .text(d => d.data.name);
 
 
-            const parent = g.append("circle")
+            const parent = g.append("circles")
                     .datum(root)
                     .attr("r", radius)
                     .attr("fill", "none")
@@ -522,14 +544,13 @@ d3.json("world.json").then(function(json) {
                 return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
             }
         })
-         // load big bubbles
-        d3.json("country_att_1").then(function(data){
-                // only get the list of photo objects
-                function datesSelect(data_things,min_month,max_month){
-
+        // only get the list of photo objects
+            function datesSelect(min_month,max_month){
+                // load big bubbles
+                d3.json("country_att_1").then(function(d){
+                    data = d
                     check_list = [];
                     count_list = [];
-                    //console.log(min_month,max_month));
                     for(i=min_month;i<max_month+1;i++){
                         if (i<10){
                             cur_month = "0" + i
@@ -550,12 +571,12 @@ d3.json("world.json").then(function(json) {
                         }
                     }
                     agg_data = Object.values(check_list)
-
                     var z = d3.scaleLinear()
-                        .domain([1, check_list['United States of America']['count']])
+                        .domain([1, 9792])
                         .range([ 2, 30]);
-
-                    g.selectAll("agg_circle")
+                    g.selectAll(".agg_circle")
+                      .remove();
+                    g.selectAll(".agg_circle")
                     .data(agg_data)
                     .enter()
                     .append("circle")
@@ -569,20 +590,39 @@ d3.json("world.json").then(function(json) {
                     .attr("r", function(d){
                         return z(d['count'])
                     })
-                    .on("click", function(d){
-                        console.log(d)
+                    .attr("fill", function(d){
+                        if(d['count'] > 9000){
+                            return("#800000")
+                        }
+                        else if (d['count'] > 7000){
+                            return("#C21807")
+                        }
+                        else if (d['count'] > 4000){
+                            return("#ED2939")
+                        }
+                        else if (d['count'] > 2000){
+                            return("#EA3C53")
+                        }
+                        else if (d['count'] > 800){
+                            return("#E0115F")
+                        }
+                        else {
+                            return('#B43757')
+                        }
                     })
                     .on("mouseover", function(d){
-                        console.log(d)
+                        country_tip.html("<span><strong>Location: </strong></span><span style='color:white'>" + d.country + "</span><br><span><strong>Photos: </strong></span><span style='color:white;text-align:left'>" + d.count + "</span>")
+                        .style("opacity", 0.9)
+                        .style("left", (d3.event.pageX + 50) + "px")
+                        .style("top", d3.event.pageY + "px");
                     })
-                    .on("mouseleave", function(d){
-                        console.log(d)
-                    })
-
-                }
+                
+                    
+                })
+                
+            };
                 // aggregated bubbles
-                data_test = datesSelect(data,1,12);
-            });
+                data_test = datesSelect(1,12);
 
             // Slider
             var slider_data = [1,2,3,4,5,6,7,8,9,10,11,12]
@@ -600,6 +640,7 @@ d3.json("world.json").then(function(json) {
                 .fill('#2196f3')
                 .on('onchange', val => {
                 filterCircles(filterLabel);
+                    datesSelect(sliderRange.value()[0],sliderRange.value()[1])
                 });
 
 
@@ -611,6 +652,7 @@ d3.json("world.json").then(function(json) {
                 .attr('height', 100)
                 .append('g')
                 .attr('transform', 'translate(500,30)');
+        
 
 
              gRange.call(sliderRange);
