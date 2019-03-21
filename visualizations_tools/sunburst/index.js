@@ -2,6 +2,8 @@ const format = d3.format(",d");
 const width = 250;
 const radius = width / 6;
 
+var filterLabel = "All data"
+
 const arc = d3.arc()
         .startAngle(d => d.x0)
         .endAngle(d => d.x1)
@@ -20,7 +22,6 @@ const partition = data => {
 }
 
 d3.json("labels.json").then(data => {
-    console.log(data);
     const root = partition(data);
     const color = d3.scaleOrdinal().range(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
 
@@ -33,6 +34,12 @@ d3.json("labels.json").then(data => {
 
     const g = svg.append("g")
             .attr("transform", `translate(${width / 2},${width / 2})`);
+			
+	text = svg.append('text')
+	  .text('All data')
+	  .attr('dy','0.35em')
+	  .attr('transform', 'translate(125,123)')
+	  .style("text-anchor", "middle")
 
     const path = g.append("g")
             .selectAll("path")
@@ -46,7 +53,7 @@ d3.json("labels.json").then(data => {
             .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
             .attr("d", d => arc(d.current));
 
-    path.filter(d => d.children)
+    path.filter(d => d)
             .style("cursor", "pointer")
             .on("click", clicked);
 
@@ -64,6 +71,7 @@ d3.json("labels.json").then(data => {
             .attr("fill-opacity", d => +labelVisible(d.current))
             .attr("transform", d => labelTransform(d.current))
             .text(d => d.data.name);
+			
 
     const parent = g.append("circle")
             .datum(root)
@@ -87,22 +95,48 @@ d3.json("labels.json").then(data => {
         // Transition the data on all arcs, even the ones that aren’t visible,
         // so that if this transition is interrupted, entering arcs will start
         // the next transition from the desired position.
-        path.transition(t)
-                .tween("data", d => {
-                    const i = d3.interpolate(d.current, d.target);
-                    return t => d.current = i(t);
-                })
-                .filter(function (d) {
-                    return +this.getAttribute("fill-opacity") || arcVisible(d.target);
-                })
-                .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
-                .attrTween("d", d => () => arc(d.current));
+		
+		// last layer
+		if (p.children == undefined){
+			path.transition(t)
+					.tween("data", d => {
+						const i = d3.interpolate(d.current, d.target);
+						return t => d.current = i(t);
+					})
+					.attrTween("d", d => () => arc(d.current));
 
-        label.filter(function (d) {
-            return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+			label.filter(function (d) {
+				return +this.getAttribute("fill-opacity") || labelVisible(d.target);
         }).transition(t)
                 .attr("fill-opacity", d => +labelVisible(d.target))
                 .attrTween("transform", d => () => labelTransform(d.current));
+			text.text(p.data.name)
+			filterLabel = p.data.name
+				
+				
+				
+				
+		} else {
+			path.transition(t)
+					.tween("data", d => {
+						const i = d3.interpolate(d.current, d.target);
+						return t => d.current = i(t);
+					})
+					.filter(function (d) {
+						return +this.getAttribute("fill-opacity") || arcVisible(d.target);
+					})
+					
+					.attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
+					.attrTween("d", d => () => arc(d.current));
+
+			label.filter(function (d) {
+				return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+			}).transition(t)
+					.attr("fill-opacity", d => +labelVisible(d.target))
+					.attrTween("transform", d => () => labelTransform(d.current));
+				}
+			text.text(p.data.name)
+			filterLabel = p.data.name
     }
 
     function arcVisible(d) {
