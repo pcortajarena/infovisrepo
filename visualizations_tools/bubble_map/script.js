@@ -36,6 +36,10 @@ var circle_tip = d3.select("body")
     .attr("class", "circle-tooltip")
     .style("opacity", 0);
 
+d3.select('#remove-networks').on("click", function(){
+    d3.selectAll('line').remove();
+});
+
 // Load GeoJSON data
 d3.json("world.json").then(function(json) {
 
@@ -123,7 +127,7 @@ d3.json("world.json").then(function(json) {
   			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
     }
 
-    d3.json("NUS.json").then(function(data){
+    d3.json("shortNUS.json").then(function(data){
 
         // only get the list of photo objects
         data = data["photos"]
@@ -153,11 +157,28 @@ d3.json("world.json").then(function(json) {
 
         function circleClicked(d){
 
+            d3.select(this).style('fill', 'blue');
+            reset();
+
+            d3.json('/infovisrepo/data/edges_copy.json').then(function(data2){
+                for (var k in data2[d.id]){
+                    myline = g.append("line")
+                        .attr('class', 'network')
+                        .attr("id", d.id)
+                        .style("stroke", "blue")
+                        .style("stroke-opacity", .5)
+                        .attr("x1", projection([d["longitude"], d["latitude"]])[0])
+                        .attr("y1", projection([d["longitude"], d["latitude"]])[1])
+                        .attr("x2", projection([data2[d.id][k][1], data2[d.id][k][0]])[0])
+                        .attr("y2", projection([data2[d.id][k][1], data2[d.id][k][0]])[1])
+                }
+            });
+
         }
 
         function circleMouseover(d){
             var sel = d3.select(this);
-            sel.raise().each(pulse);
+            // sel.raise().each(pulse);
 
             img = d.url;
             username = d.username;
@@ -279,8 +300,6 @@ d3.json("world.json").then(function(json) {
             root.each(d => d.current = d);
 
             const svg = d3.select("#partitionSVG")
-                    .style("width", "100%")
-                    .style("height", "auto")
                     .style("font", "6px sans-serif");
 
             const g = svg.append("g")
@@ -419,13 +438,14 @@ d3.json("world.json").then(function(json) {
 			.default([1,12])
 			.fill('#2196f3')
 			.on('onchange', val => {
-			filterCircles(label);
+			filterCircles(filterLabel);
 			});
 
 
 		var gRange = d3
 			.select('body')
 			.append('svg')
+            .attr('id', 'slider')
 			.attr('width', 1500)
 			.attr('height', 100)
 			.append('g')
