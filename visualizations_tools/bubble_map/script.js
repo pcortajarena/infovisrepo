@@ -51,8 +51,8 @@ var panel = d3.select('body')
     .attr("class", "panel panel-hidden")
     .style("width", width)
     .style("opacity", 1.0)
-    .style("left", (width - 600) + "px")   
-    .style("top", (height - 250) + "px"); 
+    .style("left", (width - 600) + "px")
+    .style("top", (height - 250) + "px");
 
 var panelButton = d3.select('body')
     .append('button')
@@ -81,8 +81,8 @@ function openPanel() {
     panelButton.style("top", (height - 275) + "px").attr("show", 1);
     panel.classed("panel-hidden", false);
 }
-    
-// // Load GeoJSON data 
+
+// // Load GeoJSON data
 d3.json("world.json").then(function(json) {
 
     // Bind the data to the SVG and create one path per GeoJSON feature
@@ -96,7 +96,7 @@ d3.json("world.json").then(function(json) {
         .on('mouseover', areaMouseover)
         .on('mousemove', areaMousemove)
         .on('mouseleave', areaMouseleave)
-    
+
     function reset(){
         active.classed("active", false);
         active = d3.select(null);
@@ -185,13 +185,13 @@ d3.json("world.json").then(function(json) {
                 }
             }
         }
-        
+
         fillPanel(topN, topNbubbles);
     }
 
     function fillPanel(entries, bubbles){
         panel.html("");
-        
+
         for (var i=0; i<selected_bubbles.length; i++) {
             d3.select(selected_bubbles[i]).classed("circles-selected", false)
         }
@@ -211,14 +211,14 @@ d3.json("world.json").then(function(json) {
                 "<div class='card-img-container'>" +
                     "<a href='" + entries[i].photopage_url + "' target='_blank'><img class='card-img' src='" + entries[i].url + "'></a>" +
                 "</div>" +
-                "<div class='card-info'>" + 
+                "<div class='card-info'>" +
                     "<p class='card-title'><strong>" + entries[i].title + "</strong></p>" +
-                    "<p class='card-text'> Username: " + entries[i].username + "</p>" +  
+                    "<p class='card-text'> Username: " + entries[i].username + "</p>" +
                     "<p class='card-text'> Labels: " + entries[i].labels.join(', ') + "</p>" +
                     "<p class='card-text'> Timestamp: " + entries[i].date + "</p>" +
                     "<p class='card-text'>" + entries[i].views + " views </p>" +
                 "</div>" +
-            "</div>" 
+            "</div>"
             )
         }
     }
@@ -393,7 +393,9 @@ d3.json("world.json").then(function(json) {
 
         d3.json("labels.json").then(data => {
             const root = partition(data);
-            const color = d3.scaleOrdinal().range(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
+
+            // optional colors: d3.interpolatePlasma, d3.interpolateSinebow, d3.interpolateInferno, d3.interpolateRdYlGn
+            const color = d3.scaleOrdinal().range(d3.quantize(d3.interpolateSinebow, data.children.length + 1));
 
             root.each(d => d.current = d);
 
@@ -411,7 +413,7 @@ d3.json("world.json").then(function(json) {
 
             const path = g.append("g")
                     .selectAll("path")
-                    .data(root.descendants().slice())
+                    .data(root.descendants().slice(1))
                     .join("path")
                     .attr("fill", d => {
                         while (d.depth > 1)
@@ -433,7 +435,7 @@ d3.json("world.json").then(function(json) {
                     .attr("text-anchor", "middle")
                     .style("user-select", "none")
                     .selectAll("text")
-                    .data(root.descendants().slice())
+                    .data(root.descendants().slice(1))
                     .join("text")
                     .attr("dy", "0.35em")
                     .attr("fill-opacity", d => +labelVisible(d.current))
@@ -524,7 +526,7 @@ d3.json("world.json").then(function(json) {
         d3.json("country_att_1").then(function(data){
                 // only get the list of photo objects
                 function datesSelect(data_things,min_month,max_month){
-                   
+
                     check_list = [];
                     count_list = [];
                     //console.log(min_month,max_month));
@@ -576,7 +578,7 @@ d3.json("world.json").then(function(json) {
                     .on("mouseleave", function(d){
                         console.log(d)
                     })
-                    
+
                 }
                 // aggregated bubbles
                 data_test = datesSelect(data,1,12);
