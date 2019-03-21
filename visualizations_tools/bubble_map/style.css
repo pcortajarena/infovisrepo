@@ -1,7 +1,22 @@
 /* On mouse hover, lighten state color */
+.infov_hidden .circles {
+    display:none;
+}
+.agg_circle {
+    display:none;
+}
+.infov_hidden .agg_circle {
+    display:initial;
+}
+.agg_circle {
+    opacity:0.75;   
+}
 
 body{
 	background-color: #b3e6ff;
+}
+svg {
+    cursor:pointer;
 }
 
 #main{
