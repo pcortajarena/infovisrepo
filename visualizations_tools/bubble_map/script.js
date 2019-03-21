@@ -1,6 +1,7 @@
 var width = 1440,
     height = 750,
-    active = d3.select(null);
+    active = d3.select(null),
+    activeCountry = "Netherlands";
 
 var circR = 1;
 
@@ -85,6 +86,8 @@ function openPanel() {
     panel.classed("panel-hidden", false);
 }
 
+var filterLabel = "All data";
+
 // // Load GeoJSON data
 d3.json("world.json").then(function(json) {
 
@@ -137,6 +140,7 @@ d3.json("world.json").then(function(json) {
         document.querySelector('body').classList.remove('infov_hidden')
         active.classed("active", false);
         active = d3.select(this).classed("active", true);
+        activeCountry = d;
 
         var x_translation = 0
         var scale_translation = 0.5
@@ -175,7 +179,12 @@ d3.json("world.json").then(function(json) {
             .style("stroke-width", 1.0 / scale + "px")
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 
-        openPanel();
+        refreshPanel();
+    }
+
+    function refreshPanel(){
+        country_name = activeCountry.properties.name;
+        
         bubbles = g.selectAll(".circles")
         circles = bubbles.data();
         topN = [];
@@ -183,10 +192,18 @@ d3.json("world.json").then(function(json) {
 
         indices = {};
 
-        country_name = d.properties.name;
+        openPanel();   
+
         for (var i=0; i<circles.length; i++) {
             if(circles[i].location == country_name) {
-                indices[i] = circles[i].views;
+                if(!bubbles.nodes()[i].classList.contains("circles-hidden")){
+                    if(filterLabel == "All data")
+                    {
+                        indices[i] = circles[i].views;
+                    } else if (bubbles.nodes()[i].classList.contains("circles-active")){
+                        indices[i] = circles[i].views;
+                    }
+                }
             }
         }
 
@@ -213,10 +230,7 @@ d3.json("world.json").then(function(json) {
         for (var i=0; i<selected_bubbles.length; i++) {
             d3.select(selected_bubbles[i]).classed("circles-selected", false);
         }
-//<<<<<<< HEAD
-//=======
 
-//>>>>>>> ddb52e0d46fb96b3ba2e71683e54ca6f6eaea6a1
         selected_bubbles = []
         selected_bubbles = bubbles;
 
@@ -281,7 +295,7 @@ d3.json("world.json").then(function(json) {
             openPanel();
             fillPanel([d], [this]);
 
-            d3.json('/infovisrepo/data/edges_copy.json').then(function(data2){
+            d3.json('edges_copy.json').then(function(data2){
                 for (var k in data2[d.id]){
                     myline = g.append("line")
                         .attr('class', 'network')
@@ -338,19 +352,30 @@ d3.json("world.json").then(function(json) {
         function filterCircles(label){
             g.selectAll(".circles")
             .classed("circles-active", function(d) {
+                
+                if(d.labels == undefined){
+                    return false;
+                }
+
                 if(d.labels.includes(label)){
                     return true;
-                }
+                }    
 
                 return false;
             })
             .classed("circles-hidden", function(d) {
+                if(d.date == undefined){
+                    return true;
+                }
+
                 if((parseInt(d.date.substring(5,7))>=Math.min(sliderRange.value()[0],sliderRange.value()[1])) && (parseInt(d.date.substring(5,7))<=Math.max(sliderRange.value()[0],sliderRange.value()[1]))){
                     return false;
                 }
 
                 return true;
             });
+
+            refreshPanel();
         }
 
 
@@ -393,8 +418,6 @@ d3.json("world.json").then(function(json) {
         const format = d3.format(",d");
         const width_sunburst = 250;
         const radius = width_sunburst / 6;
-
-        var filterLabel = "All data"
 
         const arc = d3.arc()
                 .startAngle(d => d.x0)
