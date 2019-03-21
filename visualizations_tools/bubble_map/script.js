@@ -4,6 +4,8 @@ var width = 1440,
 
 var circR = 1;
 
+var topSize = 10;
+
 var projection = d3.geoMercator()
 				   .translate([width/2, height/2 + 100])    // translate to center of screen
 				   .scale(230);          // scale things down so see entire US
@@ -15,7 +17,7 @@ var path = d3.geoPath(projection);  // tell path generator to use albersUsa proj
 var svg = d3.select("body")
 			.append("svg")
 			.attr("width", width)
-			.attr("height", height);
+            .attr("height", height);
 
 svg.append("rect")
     .attr("class", "background")
@@ -41,6 +43,66 @@ d3.select('#remove-networks').on("click", function(){
 });
 
 // Load GeoJSON data
+var panel = d3.select('body')
+    .append("div")
+    .attr("class", "panel panel-hidden")
+    .style("width", width)
+    .style("opacity", 1.0)
+    .style("left", (width - 600) + "px")   
+    .style("top", (height - 250) + "px"); 
+
+var panelButton = d3.select('body')
+    .append('button')
+    .attr("class", "panel-button")
+    .attr("show", 0)
+    .style("left", (width - 50) + "px")
+    .style("top", (height - 25) + "px")
+    .html("<i class='fa fa-angle-down'></i>")
+    .on("click", panelButtonClicked);
+
+function panelButtonClicked(d){
+    if(panelButton.attr("show") == 0){
+        openPanel();
+    }
+    else{
+        closePanel();
+    }
+}
+
+function closePanel(){
+    panelButton.style("top", (height - 25) + "px").attr("show", 0);
+    panel.classed("panel-hidden", true);
+}
+
+function openPanel() {
+    panelButton.style("top", (height - 275) + "px").attr("show", 1);
+    panel.classed("panel-hidden", false);
+}
+
+// var select = d3.select('body')
+//     .append('select')
+//     .attr('class','dropdown')
+//     .on('change', onchange);
+
+// var panelCard = panel
+//     .append("div")
+//     .attr("class", "card");
+
+
+    // panel.html(
+    //     "<div class='card'>" +
+    //         "<div class='card-img-container'>" +
+    //             "<img class='card-img' src='https://farm3.staticflickr.com/2284/1809970743_cba7b7ec25.jpg'>" +
+    //         "</div>" +
+    //         "<div class='card-info'>" + 
+    //             "<p class='card-title'><strong>John Doe and two lambs and the small wolf from the</strong></p>" +
+    //             "<p class='card-text'>Architect & Engineer</p>" +  
+    //         "</div>" +
+    //     "</div>"
+    // )
+
+    
+// // Load GeoJSON data 
 d3.json("world.json").then(function(json) {
 
     // Bind the data to the SVG and create one path per GeoJSON feature
@@ -54,15 +116,15 @@ d3.json("world.json").then(function(json) {
         .on('mouseover', areaMouseover)
         .on('mousemove', areaMousemove)
         .on('mouseleave', areaMouseleave)
-
+    
     function reset(){
-      active.classed("active", false);
-      active = d3.select(null);
+        active.classed("active", false);
+        active = d3.select(null);
 
-      g.transition()
-          .duration(750)
-          .style("stroke-width", "1.5px")
-          .attr("transform", "");
+        g.transition()
+            .duration(750)
+            .style("stroke-width", "1.5px")
+            .attr("transform", "");
     }
 
     function areaMouseover(d) {
@@ -86,48 +148,87 @@ d3.json("world.json").then(function(json) {
     function areaClicked(d) {
 
     	if (active.node() === this) return reset();
-      active.classed("active", false);
-      active = d3.select(this).classed("active", true);
+        active.classed("active", false);
+        active = d3.select(this).classed("active", true);
 
-      var x_translation = 0
-	  var scale_translation = 0.5
-	  var y_translation = 0
+        var x_translation = 0
+        var scale_translation = 0.5
+        var y_translation = 0
 
-	  if (d.properties.name == 'Canada'){
-		x_translation = 150
-		scale_translation = 1.0
-	  } else if (d.properties.name == 'Russia'){
-		x_translation = 300
-		scale_translation = 1.8
-	  } else if (d.properties.name == 'Alaska'){
-		x_translation = -600
-		scale_translation = 3.5
-	  } else if (d.properties.name == 'France'){
-		 x_translation = 100
-		 scale_translation = 3.5
-		 y_translation = -92
-	  }
+        if (d.properties.name == 'Canada'){
+            x_translation = 150
+            scale_translation = 1.0
+        } else if (d.properties.name == 'Russia'){
+            x_translation = 300
+            scale_translation = 1.8
+        } else if (d.properties.name == 'Alaska'){
+            x_translation = -600
+            scale_translation = 3.5
+        } else if (d.properties.name == 'France'){
+            x_translation = 100
+            scale_translation = 3.5
+            y_translation = -92
+        }
 
-  	var bounds = path.bounds(d),
-  		//       x-max          x-min
-  		dx = bounds[1][0] - bounds[0][0],
-  		//       y-max          y-min
-  		dy = bounds[1][1] - bounds[0][1],
+        var bounds = path.bounds(d),
+            //       x-max          x-min
+            dx = bounds[1][0] - bounds[0][0],
+            //       y-max          y-min
+            dy = bounds[1][1] - bounds[0][1],
 
-  		// Center x and center y
-  		x = (bounds[0][0] + bounds[1][0]) / 2 + x_translation,
-  		y = (bounds[0][1] + bounds[1][1]) / 2 + y_translation,
+            // Center x and center y
+            x = (bounds[0][0] + bounds[1][0]) / 2 + x_translation,
+            y = (bounds[0][1] + bounds[1][1]) / 2 + y_translation,
 
-  		scale = scale_translation / Math.max(dx / width, dy / height),
-          translate = [width / 2 - scale * x, height / 2 - scale * y];
+            scale = scale_translation / Math.max(dx / width, dy / height),
+            translate = [width / 2 - scale * x, height / 2 - scale * y];
 
-     g.transition()
-         .duration(750)
-         .style("stroke-width", 1.0 / scale + "px")
-  			 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+        g.transition()
+            .duration(750)
+            .style("stroke-width", 1.0 / scale + "px")
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+
+        openPanel();
+        circles = g.selectAll("circle").data();
+        topN = [];
+        country_name = d.properties.name;
+
+        for (var i=0; i<circles.length; i++) {
+            if(circles[i].location == country_name) {
+                topN.push(circles[i]);
+
+                if(topN.length >= topSize){
+                    break;
+                }
+            }
+        }
+        
+        fillPanel(topN);
     }
 
-    d3.json("shortNUS.json").then(function(data){
+    function fillPanel(entries){
+        panel.html("");
+
+        for (var i=0; i<entries.length; i++) {
+            panel.append("div")
+            .attr("class", "card")
+            .html(
+                "<div class='card-img-container'>" +
+                    "<a href='" + entries[i].photopage_url + "' target='_blank'><img class='card-img' src='" + entries[i].url + "'></a>" +
+                "</div>" +
+                "<div class='card-info'>" + 
+                    "<p class='card-title'><strong>" + entries[i].title + "</strong></p>" +
+                    "<p class='card-text'> Username: " + entries[i].username + "</p>" +  
+                    "<p class='card-text'> Labels: " + entries[i].labels.join(', ') + "</p>" +
+                    "<p class='card-text'> Timestamp: " + entries[i].date + "</p>" +
+                    "<p class='card-text'>" + entries[i].views + " views </p>" +
+                "</div>" +
+            "</div>" 
+            )
+        }
+    }
+
+    d3.json("NUS.json").then(function(data){
 
         // only get the list of photo objects
         data = data["photos"]
@@ -160,6 +261,9 @@ d3.json("world.json").then(function(json) {
             d3.select(this).style('fill', 'blue');
             reset();
 
+            openPanel();
+            fillPanel([d]);
+
             d3.json('/infovisrepo/data/edges_copy.json').then(function(data2){
                 for (var k in data2[d.id]){
                     myline = g.append("line")
@@ -173,6 +277,7 @@ d3.json("world.json").then(function(json) {
                         .attr("y2", projection([data2[d.id][k][1], data2[d.id][k][0]])[1])
                 }
             });
+
 
         }
 
@@ -194,7 +299,7 @@ d3.json("world.json").then(function(json) {
                     "<div class='circle-tooltip-right'>" +
                         "<p class='circle-tooltip-title'><strong>" + title + "</strong></p>" +
                         "<p class='circle-tooltip-text'>Username: " + username + "</p>" +
-                        "<p class='circle-tooltip-text'> Labels: " + labels + "</p>" +
+                        "<p class='circle-tooltip-text'> Labels: " + labels.join(', ') + "</p>" +
                         "<p class='circle-tooltip-text'> Timestamp: " + date + "</p>" +
                         "<p class='circle-tooltip-text'>" + views + " views </p>" +
                         // "<span><strong>Photo page:</strong></span> <span style='color:black'><a href="+ page +"> Visit flickr </a></span><br/>" +
@@ -214,10 +319,8 @@ d3.json("world.json").then(function(json) {
         }
 
         function filterCircles(label){
-            console.log("FilterCircles");
             g.selectAll("circle")
             .classed("circles-active", function(d) {
-                console.log(label);
                 if(d.labels.includes(label)){
                     return true;
                 }
@@ -452,6 +555,8 @@ d3.json("world.json").then(function(json) {
 			.attr('transform', 'translate(500,30)');
 
 
-		 gRange.call(sliderRange);
+         gRange.call(sliderRange);
+         panel.raise()
     });
+
 });

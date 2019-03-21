@@ -149,7 +149,7 @@ def sort_file_lines(path, list_field, sort_field):
     with open(path) as f: 
         out[list_field] = [json.loads(x) for x in f.read().splitlines()] 
 
-    out[list_field].sort(key=lambda k: int(k[sort_field]))
+    out[list_field].sort(key=lambda k: int(k[sort_field]), reverse=True)
     with open(path, 'w+') as f:
         json.dump(out, f, sort_keys=True, indent=4)
     logging.info(f"File saved")
@@ -183,5 +183,6 @@ labels_dict = {}
 for path in PATHS:
     parse_file(path, labels_dict)
 
+OUT = "NUS.json"
 sort_file_lines(OUT, "photos", "views")
 write_labels(LABELS_OUT, labels_dict)

@@ -137,6 +137,85 @@ h2{
 	overflow: hidden;
 }
 
+.panel {
+	position: absolute;     
+	text-align: left;
+	background: #fff;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	display: flex;
+	width: 600px;
+	height: 250px;
+	border-radius: 8px 0px 0px 0px;
+}
+
+.panel-hidden {
+	display: none;
+}
+
+.panel::after {
+	content: "";
+	flex: 0 0 20px;
+}
+
+.panel-button {
+	position: absolute;     
+	text-align: center;
+	border-radius: 4px 4px 0px 0px;
+	width: 40px;
+	height: 25px;
+	cursor:pointer;
+	background:rgba(255,255,255,0.9);
+	border: none;
+	box-shadow:0px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card {
+	float: left; 
+	height: 95%;
+	margin: 10px;
+	padding: 0px;
+	font: 12px sans-serif; 
+	width: 280px;
+
+	box-shadow: 1px 5px 12px 1px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
+	-moz-box-shadow: 6px 5px 12px 1px rgba(0,0,0,0.5);
+}
+
+.card-img-container {
+	overflow: hidden;
+}
+
+.card-img {
+	height: 130px;
+	width: 280px;
+	object-fit: cover;
+}
+
+.card-info {
+	width: 280px;
+	padding: 2px 10px;
+}
+
+.card p {
+	margin: 1px;
+	text-overflow: ellipsis;
+    width: 265px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.card-title {
+	font: 14px sans-serif;
+	color: #222;
+}
+
+.card-text {
+	color: #666;
+}
+
+
 .tick text{
 	fill: #223360;
 }
@@ -155,9 +234,6 @@ h2{
     transform: rotate(45deg);
   } */
 /* Legend Font Style */
-body {
-	font: 11px sans-serif;
-}
 
 /* Legend Position Style */
 .legend {
