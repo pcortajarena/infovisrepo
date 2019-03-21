@@ -180,16 +180,27 @@ d3.json("world.json").then(function(json) {
         circles = bubbles.data();
         topN = [];
         topNbubbles = [];
-        country_name = d.properties.name;
 
+        indices = {};
+
+        country_name = d.properties.name;
         for (var i=0; i<circles.length; i++) {
             if(circles[i].location == country_name) {
-                topN.push(circles[i]);
-                topNbubbles.push(bubbles.nodes()[i]);
+                indices[i] = circles[i].views;
+            }
+        }
 
-                if(topN.length >= topSize){
-                    break;
-                }
+        var result = Object.keys(indices).sort(function(a, b) {
+            return indices[b] - indices[a];
+        })
+
+        for (var i=0; i<result.length; i++) {
+            idx = result[i];
+            topN.push(circles[idx]);
+            topNbubbles.push(bubbles.nodes()[idx]);
+
+            if(i >= topSize){
+                break;
             }
         }
 
@@ -200,13 +211,17 @@ d3.json("world.json").then(function(json) {
         panel.html("");
 
         for (var i=0; i<selected_bubbles.length; i++) {
-            d3.select(selected_bubbles[i]).classed("circles-selected", false)
+            d3.select(selected_bubbles[i]).classed("circles-selected", false);
         }
+//<<<<<<< HEAD
+//=======
+
+//>>>>>>> ddb52e0d46fb96b3ba2e71683e54ca6f6eaea6a1
         selected_bubbles = []
         selected_bubbles = bubbles;
 
         for (var i=0; i<selected_bubbles.length; i++) {
-            d3.select(selected_bubbles[i]).classed("circles-selected", true).raise();;
+            d3.select(selected_bubbles[i]).classed("circles-selected", true).raise();
         }
 
         for (var i=0; i<entries.length; i++) {
@@ -226,6 +241,8 @@ d3.json("world.json").then(function(json) {
             "</div>"
             )
         }
+
+        g.selectAll("circle").order();
     }
 
     d3.json("NUS.json").then(function(data){
