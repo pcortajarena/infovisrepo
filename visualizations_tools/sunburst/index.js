@@ -1,6 +1,6 @@
 const format = d3.format(",d");
-const width = 250;
-const radius = width / 6;
+const width_sunburst = 250;
+const radius = width_sunburst / 6;
 
 var filterLabel = "All data"
 
@@ -33,8 +33,8 @@ d3.json("labels.json").then(data => {
             .style("font", "6px sans-serif");
 
     const g = svg.append("g")
-            .attr("transform", `translate(${width / 2},${width / 2})`);
-			
+            .attr("transform", `translate(${width_sunburst / 2},${width_sunburst / 2})`);
+
 	text = svg.append('text')
 	  .text('All data')
 	  .attr('dy','0.35em')
@@ -43,7 +43,7 @@ d3.json("labels.json").then(data => {
 
     const path = g.append("g")
             .selectAll("path")
-            .data(root.descendants().slice(1))
+            .data(root.descendants().slice())
             .join("path")
             .attr("fill", d => {
                 while (d.depth > 1)
@@ -65,13 +65,13 @@ d3.json("labels.json").then(data => {
             .attr("text-anchor", "middle")
             .style("user-select", "none")
             .selectAll("text")
-            .data(root.descendants().slice(1))
+            .data(root.descendants().slice())
             .join("text")
             .attr("dy", "0.35em")
             .attr("fill-opacity", d => +labelVisible(d.current))
             .attr("transform", d => labelTransform(d.current))
             .text(d => d.data.name);
-			
+
 
     const parent = g.append("circle")
             .datum(root)
@@ -95,7 +95,7 @@ d3.json("labels.json").then(data => {
         // Transition the data on all arcs, even the ones that aren’t visible,
         // so that if this transition is interrupted, entering arcs will start
         // the next transition from the desired position.
-		
+
 		// last layer
 		if (p.children == undefined){
 			path.transition(t)
@@ -112,10 +112,7 @@ d3.json("labels.json").then(data => {
                 .attrTween("transform", d => () => labelTransform(d.current));
 			text.text(p.data.name)
 			filterLabel = p.data.name
-				
-				
-				
-				
+
 		} else {
 			path.transition(t)
 					.tween("data", d => {
@@ -125,7 +122,7 @@ d3.json("labels.json").then(data => {
 					.filter(function (d) {
 						return +this.getAttribute("fill-opacity") || arcVisible(d.target);
 					})
-					
+
 					.attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
 					.attrTween("d", d => () => arc(d.current));
 
