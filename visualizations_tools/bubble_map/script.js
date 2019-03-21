@@ -465,7 +465,7 @@ d3.json("world.json").then(function(json) {
                     .text(d => d.data.name);
 
 
-            const parent = g.append("circles")
+            const parent = g.append("circle")
                     .datum(root)
                     .attr("r", radius)
                     .attr("fill", "none")
