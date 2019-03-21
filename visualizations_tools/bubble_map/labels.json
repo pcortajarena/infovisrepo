@@ -1,0 +1,317 @@
+{
+  "name": "All data",
+  "children": [{
+      "name": "Animals",
+      "children": [{
+          "name": "animal",
+          "value": 1
+        },
+        {
+          "name": "bear",
+          "value": 1
+        },
+        {
+          "name": "birds",
+          "value": 1
+        },
+        {
+          "name": "cat",
+          "value": 1
+        },
+        {
+          "name": "cow",
+          "value": 1
+        },
+        {
+          "name": "dog",
+          "value": 1
+        },
+        {
+          "name": "elk",
+          "value": 1
+        },
+        {
+          "name": "fish",
+          "value": 1
+        },
+        {
+          "name": "fox",
+          "value": 1
+        },
+        {
+          "name": "horses",
+          "value": 1
+        },
+        {
+          "name": "tiger",
+          "value": 1
+        },
+        {
+          "name": "whales",
+          "value": 1
+        }]
+    }, {
+      "name": "Architecture",
+      "children": [{
+          "name": "buildings",
+          "value": 1
+        },
+        {
+          "name": "bridge",
+          "value": 1
+        },
+        {
+          "name": "castle",
+          "value": 1
+        },
+        {
+          "name": "cityscape",
+          "value": 1
+        },
+        {
+          "name": "house",
+          "value": 1
+        },
+        {
+          "name": "railroad",
+          "value": 1
+        },
+        {
+          "name": "road",
+          "value": 1
+        },
+        {
+          "name": "sign",
+          "value": 1
+        },
+        {
+          "name": "statue",
+          "value": 1
+        },
+        {
+          "name": "street",
+          "value": 1
+        },
+        {
+          "name": "temple",
+          "value": 1
+        },
+        {
+          "name": "tower",
+          "value": 1
+        },
+        {
+          "name": "town",
+          "value": 1
+        },
+        {
+          "name": "window",
+          "value": 1
+        }]
+    },{
+      "name": "Nature",
+      "children": [{
+          "name": "mountains",
+          "children":[{
+              "name": "glacier",
+              "value": 1
+            },
+            {
+              "name": "mountain",
+              "value": 1
+            },
+            {
+              "name": "rocks",
+              "value": 1
+            }]
+        },
+        {
+          "name": "plants",
+          "children":[{
+              "name": "flowers",
+              "value": 1
+            },
+            {
+              "name": "garden",
+              "value": 1
+            },
+            {
+              "name": "grass",
+              "value": 1
+            },
+            {
+              "name": "leaf",
+              "value": 1
+            },
+            {
+              "name": "plants",
+              "value": 1
+            },
+            {
+              "name": "tree",
+              "value": 1
+            },
+            {
+              "name": "valley",
+              "value": 1
+            }]
+        },
+        {
+          "name": "sky",
+          "children":[{
+              "name": "clouds",
+              "value": 1
+            },
+            {
+              "name": "moon",
+              "value": 1
+            },
+            {
+              "name": "nighttime",
+              "value": 1
+            },
+            {
+              "name": "sky",
+              "value": 1
+            },
+            {
+              "name": "sun",
+              "value": 1
+            },
+            {
+              "name": "sunset",
+              "value": 1
+            }]
+        },
+        {
+          "name": "water",
+          "children":[{
+              "name": "beach",
+              "value": 1
+            },
+            {
+              "name": "coral",
+              "value": 1
+            },
+            {
+              "name": "lake",
+              "value": 1
+            },
+            {
+              "name": "ocean",
+              "value": 1
+            },
+            {
+              "name": "sand",
+              "value": 1
+            },
+            {
+              "name": "water",
+              "value": 1
+            },
+            {
+              "name": "waterfall",
+              "value": 1
+            }]
+        },
+        {
+          "name": "other",
+          "children":[{
+              "name": "fire",
+              "value": 1
+            },
+            {
+              "name": "frost",
+              "value": 1
+            },
+            {
+              "name": "reflection",
+              "value": 1
+            },
+            {
+              "name": "snow",
+              "value": 1
+            }]
+        }]
+    }, {
+      "name": "People",
+      "children": [{
+          "name": "food",
+          "value": 1
+        },
+        {
+          "name": "military",
+          "value": 1
+        },
+        {
+          "name": "person",
+          "value": 1
+        },
+        {
+          "name": "police",
+          "value": 1
+        },
+        {
+          "name": "protest",
+          "value": 1
+        },
+        {
+          "name": "toy",
+          "value": 1
+        },
+        {
+          "name": "wedding",
+          "value": 1
+        }]
+    }, {
+      "name": "Sports",
+      "children": [
+        {
+          "name": "dancing",
+          "value": 1
+        },
+        {
+          "name": "running",
+          "value": 1
+        },
+        {
+          "name": "sports",
+          "value": 1
+        },
+        {
+          "name": "swimmers",
+          "value": 1
+        }]
+    }, {
+      "name": "Vehicles",
+      "children": [
+        {
+          "name": "airport",
+          "value": 1
+        },
+        {
+          "name": "boats",
+          "value": 1
+        },
+        {
+          "name": "cars",
+          "value": 1
+        },
+        {
+          "name": "harbor",
+          "value": 1
+        },
+        {
+          "name": "plane",
+          "value": 1
+        },
+        {
+          "name": "train",
+          "value": 1
+        },
+        {
+          "name": "vehicle",
+          "value": 1
+        }]
+    }]
+  }
