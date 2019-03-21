@@ -43,6 +43,8 @@ d3.select('#remove-networks').on("click", function(){
     d3.selectAll('.circles').style('fill', '#ff6348');
 });
 
+var selected_bubbles = []
+
 // Load GeoJSON data
 var panel = d3.select('body')
     .append("div")
@@ -79,29 +81,6 @@ function openPanel() {
     panelButton.style("top", (height - 275) + "px").attr("show", 1);
     panel.classed("panel-hidden", false);
 }
-
-// var select = d3.select('body')
-//     .append('select')
-//     .attr('class','dropdown')
-//     .on('change', onchange);
-
-// var panelCard = panel
-//     .append("div")
-//     .attr("class", "card");
-
-
-    // panel.html(
-    //     "<div class='card'>" +
-    //         "<div class='card-img-container'>" +
-    //             "<img class='card-img' src='https://farm3.staticflickr.com/2284/1809970743_cba7b7ec25.jpg'>" +
-    //         "</div>" +
-    //         "<div class='card-info'>" + 
-    //             "<p class='card-title'><strong>John Doe and two lambs and the small wolf from the</strong></p>" +
-    //             "<p class='card-text'>Architect & Engineer</p>" +  
-    //         "</div>" +
-    //     "</div>"
-    // )
-
     
 // // Load GeoJSON data 
 d3.json("world.json").then(function(json) {
@@ -190,13 +169,16 @@ d3.json("world.json").then(function(json) {
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
 
         openPanel();
-        circles = g.selectAll("circle").data();
+        bubbles = g.selectAll("circle")
+        circles = bubbles.data();
         topN = [];
+        topNbubbles = [];
         country_name = d.properties.name;
 
         for (var i=0; i<circles.length; i++) {
             if(circles[i].location == country_name) {
                 topN.push(circles[i]);
+                topNbubbles.push(bubbles.nodes()[i]);
 
                 if(topN.length >= topSize){
                     break;
@@ -204,11 +186,23 @@ d3.json("world.json").then(function(json) {
             }
         }
         
-        fillPanel(topN);
+        fillPanel(topN, topNbubbles);
     }
 
-    function fillPanel(entries){
+    function fillPanel(entries, bubbles){
         panel.html("");
+        
+        for (var i=0; i<selected_bubbles.length; i++) {
+            d3.select(selected_bubbles[i]).classed("circles-selected", false)
+        }
+        console.log(bubbles);
+        selected_bubbles = []
+        selected_bubbles = bubbles;
+        console.log(selected_bubbles);
+
+        for (var i=0; i<selected_bubbles.length; i++) {
+            d3.select(selected_bubbles[i]).classed("circles-selected", true).raise();;
+        }
 
         for (var i=0; i<entries.length; i++) {
             panel.append("div")
@@ -263,7 +257,7 @@ d3.json("world.json").then(function(json) {
             reset();
 
             openPanel();
-            fillPanel([d]);
+            fillPanel([d], [this]);
 
             d3.json('/infovisrepo/data/edges_copy.json').then(function(data2){
                 for (var k in data2[d.id]){
